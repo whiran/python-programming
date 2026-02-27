@@ -1,0 +1,1890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GIT QUEST — Learn Git Commands</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --neon-green: #39ff14;
+  --neon-cyan: #00f5ff;
+  --neon-pink: #ff006e;
+  --neon-yellow: #ffe600;
+  --neon-orange: #ff7700;
+  --neon-purple: #bf5fff;
+  --dark: #05050f;
+  --dark2: #0d0d20;
+  --dark3: #141428;
+  --panel: #0a0a1e;
+  --text: #c8d8e8;
+  --pixel: 'Press Start 2P';
+  --mono: 'Share Tech Mono';
+  --round: 'Nunito';
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html, body {
+  width:100%; min-height:100vh;
+  background: var(--dark);
+  color: var(--text);
+  font-family: var(--round), sans-serif;
+  overflow-x: hidden;
+}
+
+/* SCANLINES */
+body::after {
+  content:'';
+  position:fixed; inset:0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+  pointer-events:none;
+  z-index:9999;
+}
+
+/* NOISE GRAIN */
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;
+  z-index:9998;
+  opacity:.4;
+}
+
+/* STARFIELD */
+#stars {
+  position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none;
+}
+.star {
+  position:absolute; border-radius:50%;
+  background:white; animation: twinkle var(--d) ease-in-out infinite;
+}
+@keyframes twinkle {
+  0%,100%{opacity:var(--min-op); transform:scale(1);}
+  50%{opacity:1; transform:scale(1.4);}
+}
+
+/* ===================== LAYOUT ===================== */
+#app {
+  position:relative; z-index:10;
+  max-width:1200px;
+  margin:0 auto;
+  padding:20px 16px 80px;
+}
+
+/* ===================== HEADER ===================== */
+#header {
+  text-align:center;
+  padding: 30px 0 20px;
+  position:relative;
+}
+
+.game-title {
+  font-family: var(--pixel);
+  font-size: clamp(1.4rem, 5vw, 2.8rem);
+  color: var(--neon-green);
+  text-shadow: 0 0 10px var(--neon-green), 0 0 30px var(--neon-green), 0 0 60px rgba(57,255,20,0.4);
+  animation: titlePulse 2s ease-in-out infinite;
+  letter-spacing:2px;
+  line-height:1.4;
+}
+
+.game-subtitle {
+  font-family: var(--mono);
+  font-size: clamp(0.7rem, 2vw, 1rem);
+  color: var(--neon-cyan);
+  margin-top:8px;
+  letter-spacing:4px;
+  text-transform:uppercase;
+  opacity:0.8;
+}
+
+@keyframes titlePulse {
+  0%,100%{ text-shadow: 0 0 10px var(--neon-green), 0 0 30px var(--neon-green); }
+  50%{ text-shadow: 0 0 20px var(--neon-green), 0 0 50px var(--neon-green), 0 0 80px rgba(57,255,20,0.5); }
+}
+
+/* ===================== XP BAR ===================== */
+#hud {
+  display:flex;
+  align-items:center;
+  gap:16px;
+  background: var(--dark2);
+  border:2px solid rgba(57,255,20,0.3);
+  border-radius:12px;
+  padding:12px 20px;
+  margin:16px 0 24px;
+  flex-wrap:wrap;
+}
+
+.hud-stat {
+  display:flex; align-items:center; gap:8px;
+  font-family: var(--pixel);
+  font-size:0.55rem;
+}
+
+.hud-label { color:rgba(255,255,255,0.35); text-transform:uppercase; }
+.hud-val { color:var(--neon-yellow); text-shadow:0 0 8px var(--neon-yellow); }
+
+.xp-bar-wrap {
+  flex:1; min-width:160px;
+  height:14px;
+  background:rgba(255,255,255,0.07);
+  border-radius:7px;
+  overflow:hidden;
+  border:1px solid rgba(57,255,20,0.2);
+}
+
+.xp-bar-fill {
+  height:100%;
+  background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan));
+  border-radius:7px;
+  transition: width 0.8s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: 0 0 10px var(--neon-green);
+}
+
+.level-badge {
+  font-family: var(--pixel);
+  font-size:0.6rem;
+  padding:6px 12px;
+  background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+  border-radius:8px;
+  color:white;
+  text-shadow:none;
+  white-space:nowrap;
+  animation: levelGlow 2s ease-in-out infinite;
+}
+
+@keyframes levelGlow {
+  0%,100%{box-shadow:0 0 8px var(--neon-pink);}
+  50%{box-shadow:0 0 20px var(--neon-pink), 0 0 40px rgba(255,0,110,0.3);}
+}
+
+/* ===================== MAIN LAYOUT ===================== */
+#main-grid {
+  display:grid;
+  grid-template-columns:280px 1fr;
+  gap:20px;
+  align-items:start;
+}
+
+@media(max-width:768px) {
+  #main-grid { grid-template-columns:1fr; }
+}
+
+/* ===================== SIDEBAR ===================== */
+#sidebar {
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  position:sticky;
+  top:20px;
+}
+
+.panel {
+  background: var(--panel);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:14px;
+  padding:16px;
+  position:relative;
+  overflow:hidden;
+}
+
+.panel::before {
+  content:'';
+  position:absolute;
+  top:0; left:0; right:0;
+  height:2px;
+  background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan), var(--neon-pink));
+  border-radius:2px 2px 0 0;
+}
+
+.panel-title {
+  font-family: var(--pixel);
+  font-size:0.55rem;
+  color:var(--neon-cyan);
+  text-transform:uppercase;
+  letter-spacing:2px;
+  margin-bottom:12px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+/* COMMAND MAP */
+.cmd-list { list-style:none; }
+.cmd-item {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 8px;
+  border-radius:8px;
+  cursor:pointer;
+  transition:all 0.2s;
+  margin-bottom:3px;
+  border:1px solid transparent;
+}
+
+.cmd-item:hover {
+  background:rgba(0,245,255,0.06);
+  border-color:rgba(0,245,255,0.2);
+}
+
+.cmd-item.learned {
+  background:rgba(57,255,20,0.06);
+  border-color:rgba(57,255,20,0.15);
+}
+
+.cmd-item.active-cmd {
+  background:rgba(0,245,255,0.12);
+  border-color:var(--neon-cyan);
+  box-shadow:0 0 10px rgba(0,245,255,0.2);
+}
+
+.cmd-check {
+  width:16px; height:16px;
+  border-radius:4px;
+  border:2px solid rgba(255,255,255,0.2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.55rem;
+  flex-shrink:0;
+  transition:all 0.3s;
+}
+
+.learned .cmd-check {
+  border-color:var(--neon-green);
+  background:rgba(57,255,20,0.15);
+  color:var(--neon-green);
+  box-shadow:0 0 6px rgba(57,255,20,0.4);
+}
+
+.cmd-name {
+  font-family: var(--mono);
+  font-size:0.8rem;
+  color:var(--neon-cyan);
+}
+
+.cmd-badge-mini {
+  font-family: var(--pixel);
+  font-size:0.35rem;
+  padding:2px 5px;
+  border-radius:3px;
+  margin-left:auto;
+  white-space:nowrap;
+}
+
+/* ACHIEVEMENTS */
+.achievement {
+  display:flex; align-items:center; gap:10px;
+  padding:8px;
+  border-radius:10px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.05);
+  margin-bottom:6px;
+  transition:all 0.3s;
+  opacity:0.4;
+}
+
+.achievement.unlocked {
+  opacity:1;
+  background:rgba(255,230,0,0.06);
+  border-color:rgba(255,230,0,0.25);
+  animation: achieveGlow 0.6s ease;
+}
+
+@keyframes achieveGlow {
+  0%{ transform:scale(1); }
+  50%{ transform:scale(1.04); box-shadow:0 0 20px var(--neon-yellow); }
+  100%{ transform:scale(1); }
+}
+
+.achieve-icon { font-size:1.4rem; flex-shrink:0; }
+.achieve-name { font-size:0.72rem; font-weight:700; color:var(--neon-yellow); }
+.achieve-desc { font-size:0.65rem; color:rgba(255,255,255,0.4); }
+
+/* ===================== CONTENT AREA ===================== */
+#content {
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+
+/* ===================== LESSON CARD ===================== */
+.lesson-card {
+  background: var(--dark2);
+  border:2px solid transparent;
+  border-radius:18px;
+  overflow:hidden;
+  transition:all 0.4s ease;
+  position:relative;
+}
+
+.lesson-card.active-lesson {
+  border-color:var(--neon-cyan);
+  box-shadow: 0 0 30px rgba(0,245,255,0.15), inset 0 0 30px rgba(0,245,255,0.03);
+}
+
+.lesson-card.done-lesson {
+  border-color:rgba(57,255,20,0.4);
+}
+
+.lesson-header {
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:16px 20px;
+  cursor:pointer;
+  user-select:none;
+  background:rgba(255,255,255,0.02);
+}
+
+.lesson-icon {
+  font-size:1.8rem;
+  width:48px; height:48px;
+  border-radius:12px;
+  background:var(--dark3);
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+  border:1px solid rgba(255,255,255,0.08);
+  transition:all 0.3s;
+}
+
+.active-lesson .lesson-icon {
+  box-shadow:0 0 15px rgba(0,245,255,0.3);
+  border-color:rgba(0,245,255,0.3);
+}
+
+.lesson-meta { flex:1; }
+
+.lesson-num {
+  font-family: var(--pixel);
+  font-size:0.45rem;
+  color:rgba(255,255,255,0.3);
+  letter-spacing:2px;
+  text-transform:uppercase;
+  margin-bottom:4px;
+}
+
+.lesson-title {
+  font-family: var(--pixel);
+  font-size:clamp(0.55rem, 1.5vw, 0.7rem);
+  color:white;
+  line-height:1.6;
+}
+
+.active-lesson .lesson-title { color:var(--neon-cyan); text-shadow:0 0 8px rgba(0,245,255,0.5); }
+
+.lesson-xp {
+  font-family: var(--pixel);
+  font-size:0.5rem;
+  color:var(--neon-yellow);
+  background:rgba(255,230,0,0.1);
+  border:1px solid rgba(255,230,0,0.2);
+  padding:4px 10px;
+  border-radius:6px;
+  white-space:nowrap;
+}
+
+.lesson-done-mark {
+  font-size:1.2rem;
+  color:var(--neon-green);
+  text-shadow:0 0 10px var(--neon-green);
+}
+
+/* LESSON BODY */
+.lesson-body {
+  display:none;
+  padding:0 20px 20px;
+  animation: bodyReveal 0.3s ease;
+}
+
+.lesson-body.open { display:block; }
+
+@keyframes bodyReveal {
+  from{opacity:0; transform:translateY(-8px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
+/* STORY BOX */
+.story-box {
+  background: var(--dark3);
+  border-left:3px solid var(--neon-pink);
+  border-radius:0 12px 12px 0;
+  padding:14px 16px;
+  margin:10px 0 16px;
+  font-size:0.9rem;
+  line-height:1.7;
+  color:rgba(255,255,255,0.75);
+  font-style:italic;
+  position:relative;
+}
+
+.story-box::before {
+  content:'📖 STORY';
+  font-family: var(--pixel);
+  font-size:0.4rem;
+  color:var(--neon-pink);
+  display:block;
+  margin-bottom:8px;
+  letter-spacing:2px;
+}
+
+/* ANALOGY BOX */
+.analogy-box {
+  background: linear-gradient(135deg, rgba(191,95,255,0.08), rgba(255,0,110,0.05));
+  border:1px solid rgba(191,95,255,0.3);
+  border-radius:12px;
+  padding:14px 16px;
+  margin:12px 0;
+  font-size:0.88rem;
+  line-height:1.7;
+  color:rgba(255,255,255,0.8);
+}
+
+.analogy-box::before {
+  content:'💡 THINK OF IT LIKE...';
+  font-family: var(--pixel);
+  font-size:0.4rem;
+  color:var(--neon-purple);
+  display:block;
+  margin-bottom:8px;
+  letter-spacing:2px;
+}
+
+/* SYNTAX BLOCK */
+.syntax-block {
+  background:#020208;
+  border:1px solid rgba(57,255,20,0.2);
+  border-radius:12px;
+  padding:16px 18px;
+  font-family: var(--mono);
+  font-size:clamp(0.75rem, 1.6vw, 0.92rem);
+  line-height:2;
+  position:relative;
+  margin:12px 0;
+  overflow:auto;
+}
+
+.syntax-block::before {
+  content:'';
+  position:absolute;
+  top:0; left:0; right:0; height:3px;
+  background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan), var(--neon-pink), var(--neon-green));
+  background-size:200% 100%;
+  animation:gradMove 3s linear infinite;
+  border-radius:3px 3px 0 0;
+}
+
+@keyframes gradMove {
+  0%{background-position:0%} 100%{background-position:200%}
+}
+
+.sy-cmd { color:var(--neon-green); font-weight:600; }
+.sy-flag { color:var(--neon-yellow); }
+.sy-str { color:var(--neon-orange); }
+.sy-comment { color:rgba(255,255,255,0.28); font-style:italic; }
+.sy-branch { color:var(--neon-cyan); }
+.sy-hash { color:var(--neon-purple); }
+.sy-key { color:var(--neon-pink); }
+
+/* TERMINAL */
+.terminal-wrap {
+  margin:14px 0 0;
+}
+
+.terminal {
+  background:#010108;
+  border:1px solid rgba(57,255,20,0.25);
+  border-radius:12px;
+  overflow:hidden;
+}
+
+.terminal-bar {
+  background:var(--dark3);
+  padding:8px 14px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+
+.t-dot {
+  width:10px; height:10px;
+  border-radius:50%;
+}
+
+.t-dot.r{ background:#ff5f57; }
+.t-dot.y{ background:#febc2e; }
+.t-dot.g{ background:#28c840; }
+
+.t-title {
+  font-family: var(--mono);
+  font-size:0.72rem;
+  color:rgba(255,255,255,0.4);
+  margin-left:4px;
+}
+
+.terminal-output {
+  padding:12px 16px;
+  min-height:80px;
+  max-height:200px;
+  overflow-y:auto;
+  font-family: var(--mono);
+  font-size:clamp(0.72rem, 1.4vw, 0.85rem);
+  line-height:1.8;
+}
+
+.t-line { display:flex; gap:8px; animation:tLine 0.15s ease; }
+@keyframes tLine{ from{opacity:0;transform:translateX(-4px);}to{opacity:1;transform:none;} }
+.t-prompt { color:var(--neon-green); flex-shrink:0; }
+.t-input-text { color:white; }
+.t-output { color:rgba(255,255,255,0.55); }
+.t-success { color:var(--neon-green); }
+.t-error { color:var(--neon-pink); }
+.t-info { color:var(--neon-cyan); }
+.t-warn { color:var(--neon-yellow); }
+
+.terminal-input-row {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 16px 12px;
+  border-top:1px solid rgba(255,255,255,0.04);
+}
+
+.t-prompt-fixed { color:var(--neon-green); font-family:var(--mono); font-size:0.85rem; flex-shrink:0; }
+
+.terminal-input {
+  flex:1;
+  background:transparent;
+  border:none;
+  outline:none;
+  color:white;
+  font-family: var(--mono);
+  font-size:0.85rem;
+  caret-color:var(--neon-green);
+}
+
+.terminal-input::placeholder { color:rgba(255,255,255,0.15); }
+
+.t-run-btn {
+  background: linear-gradient(135deg, var(--neon-green), var(--neon-cyan));
+  border:none;
+  border-radius:8px;
+  padding:6px 14px;
+  color:var(--dark);
+  font-family: var(--pixel);
+  font-size:0.45rem;
+  cursor:pointer;
+  transition:all 0.2s;
+  white-space:nowrap;
+}
+
+.t-run-btn:hover { transform:scale(1.05); box-shadow:0 0 15px rgba(57,255,20,0.4); }
+
+/* QUICK COMMANDS */
+.quick-cmds {
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:8px;
+}
+
+.quick-btn {
+  font-family: var(--mono);
+  font-size:0.75rem;
+  padding:5px 10px;
+  background:rgba(0,245,255,0.07);
+  border:1px solid rgba(0,245,255,0.2);
+  border-radius:6px;
+  color:var(--neon-cyan);
+  cursor:pointer;
+  transition:all 0.2s;
+}
+
+.quick-btn:hover {
+  background:rgba(0,245,255,0.15);
+  box-shadow:0 0 8px rgba(0,245,255,0.2);
+}
+
+/* CHALLENGE */
+.challenge-box {
+  background: linear-gradient(135deg, rgba(255,119,0,0.08), rgba(255,0,110,0.05));
+  border:1px solid rgba(255,119,0,0.3);
+  border-radius:12px;
+  padding:16px;
+  margin-top:14px;
+}
+
+.challenge-title {
+  font-family: var(--pixel);
+  font-size:0.5rem;
+  color:var(--neon-orange);
+  letter-spacing:2px;
+  margin-bottom:10px;
+  display:flex; align-items:center; gap:8px;
+}
+
+.challenge-task {
+  font-size:0.88rem;
+  color:rgba(255,255,255,0.8);
+  line-height:1.7;
+  margin-bottom:12px;
+}
+
+.challenge-hint {
+  font-family: var(--mono);
+  font-size:0.78rem;
+  color:rgba(255,255,255,0.35);
+  border-top:1px solid rgba(255,255,255,0.06);
+  padding-top:10px;
+  cursor:pointer;
+  transition:color 0.2s;
+}
+
+.challenge-hint:hover { color:var(--neon-yellow); }
+.challenge-hint.revealed { color:var(--neon-yellow); }
+
+/* VISUAL DIAGRAM */
+.diagram {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  flex-wrap:wrap;
+  padding:18px;
+  border:1px dashed rgba(0,245,255,0.2);
+  border-radius:12px;
+  margin:12px 0;
+  background:rgba(0,245,255,0.02);
+}
+
+.d-box {
+  background:var(--dark3);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:8px;
+  padding:10px 14px;
+  text-align:center;
+  min-width:100px;
+  font-family: var(--mono);
+}
+
+.d-box .d-label { font-size:0.6rem; color:rgba(255,255,255,0.3); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; }
+.d-box .d-name { font-size:0.82rem; color:var(--neon-cyan); }
+
+.d-arrow { font-size:1.2rem; color:var(--neon-green); animation:arrowBounce 1s ease-in-out infinite; }
+@keyframes arrowBounce { 0%,100%{transform:translateX(0);} 50%{transform:translateX(3px);} }
+
+/* COMPLETE BUTTON */
+.complete-btn {
+  width:100%;
+  margin-top:16px;
+  padding:12px;
+  background: linear-gradient(135deg, rgba(57,255,20,0.12), rgba(0,245,255,0.12));
+  border:1px solid rgba(57,255,20,0.3);
+  border-radius:10px;
+  color:var(--neon-green);
+  font-family: var(--pixel);
+  font-size:0.5rem;
+  cursor:pointer;
+  letter-spacing:2px;
+  transition:all 0.3s;
+}
+
+.complete-btn:hover {
+  background: linear-gradient(135deg, rgba(57,255,20,0.2), rgba(0,245,255,0.2));
+  box-shadow:0 0 20px rgba(57,255,20,0.25);
+  transform:scale(1.01);
+}
+
+.complete-btn:disabled {
+  opacity:0.4; cursor:default;
+  background:rgba(255,255,255,0.04);
+  border-color:rgba(255,255,255,0.08);
+  color:rgba(255,255,255,0.3);
+  transform:none; box-shadow:none;
+}
+
+/* TOAST NOTIFICATION */
+#toast {
+  position:fixed;
+  top:20px; left:50%;
+  transform:translateX(-50%) translateY(-80px);
+  background: var(--dark3);
+  border:2px solid var(--neon-yellow);
+  border-radius:12px;
+  padding:12px 24px;
+  font-family: var(--pixel);
+  font-size:0.55rem;
+  color:var(--neon-yellow);
+  z-index:9000;
+  transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow:0 0 30px rgba(255,230,0,0.3);
+  white-space:nowrap;
+  text-align:center;
+}
+
+#toast.show { transform:translateX(-50%) translateY(0); }
+
+/* LEVEL UP MODAL */
+#levelup-modal {
+  position:fixed; inset:0; z-index:8000;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(0,0,0,0.7);
+  backdrop-filter:blur(8px);
+  opacity:0; pointer-events:none;
+  transition:opacity 0.3s;
+}
+
+#levelup-modal.show { opacity:1; pointer-events:all; }
+
+.levelup-card {
+  background: var(--dark2);
+  border:2px solid var(--neon-yellow);
+  border-radius:20px;
+  padding:40px;
+  text-align:center;
+  max-width:400px;
+  width:90%;
+  box-shadow:0 0 60px rgba(255,230,0,0.3);
+  animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+@keyframes popIn {
+  from{transform:scale(0.5) rotate(-5deg);}
+  to{transform:scale(1) rotate(0);}
+}
+
+.levelup-emoji { font-size:4rem; margin-bottom:16px; animation:wobble 0.6s ease; }
+@keyframes wobble {
+  0%,100%{transform:rotate(0);}
+  25%{transform:rotate(-10deg);}
+  75%{transform:rotate(10deg);}
+}
+
+.levelup-title {
+  font-family: var(--pixel);
+  font-size:1.2rem;
+  color:var(--neon-yellow);
+  text-shadow:0 0 20px var(--neon-yellow);
+  margin-bottom:10px;
+  line-height:1.6;
+}
+
+.levelup-msg {
+  font-size:0.9rem;
+  color:rgba(255,255,255,0.6);
+  line-height:1.7;
+  margin-bottom:20px;
+}
+
+.levelup-close {
+  background: linear-gradient(135deg, var(--neon-yellow), var(--neon-orange));
+  border:none;
+  border-radius:10px;
+  padding:10px 30px;
+  font-family: var(--pixel);
+  font-size:0.5rem;
+  color:var(--dark);
+  cursor:pointer;
+  transition:all 0.2s;
+}
+
+.levelup-close:hover { transform:scale(1.05); box-shadow:0 0 20px rgba(255,230,0,0.4); }
+
+/* CHEATSHEET */
+#cheatsheet {
+  background: var(--panel);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:18px;
+  padding:24px;
+  margin-top:10px;
+  position:relative;
+  overflow:hidden;
+}
+
+#cheatsheet::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg, var(--neon-pink), var(--neon-orange), var(--neon-yellow));
+}
+
+.cs-title {
+  font-family: var(--pixel);
+  font-size:0.65rem;
+  color:var(--neon-orange);
+  letter-spacing:3px;
+  margin-bottom:18px;
+  text-align:center;
+  text-transform:uppercase;
+}
+
+.cs-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
+  gap:10px;
+}
+
+.cs-item {
+  background:var(--dark3);
+  border-radius:10px;
+  padding:12px 14px;
+  border:1px solid rgba(255,255,255,0.05);
+  transition:all 0.2s;
+}
+
+.cs-item:hover {
+  border-color:rgba(0,245,255,0.3);
+  transform:translateY(-2px);
+  box-shadow:0 8px 20px rgba(0,0,0,0.3);
+}
+
+.cs-cmd {
+  font-family: var(--mono);
+  font-size:0.82rem;
+  color:var(--neon-cyan);
+  margin-bottom:4px;
+}
+
+.cs-desc {
+  font-size:0.72rem;
+  color:rgba(255,255,255,0.4);
+  line-height:1.5;
+}
+
+/* PARTICLES */
+.particle {
+  position:fixed;
+  pointer-events:none;
+  z-index:7000;
+  border-radius:50%;
+  animation:particleFly 1s ease forwards;
+}
+
+@keyframes particleFly {
+  0%{opacity:1; transform:translate(0,0) scale(1);}
+  100%{opacity:0; transform:translate(var(--tx), var(--ty)) scale(0);}
+}
+
+/* PROGRESS BAR TOP */
+#progress-top {
+  position:fixed; top:0; left:0;
+  height:3px; z-index:200;
+  background:linear-gradient(90deg, var(--neon-green), var(--neon-cyan));
+  transition:width 0.6s ease;
+  box-shadow:0 0 8px var(--neon-green);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width:4px; height:4px; }
+::-webkit-scrollbar-track { background:var(--dark); }
+::-webkit-scrollbar-thumb { background:var(--neon-green); border-radius:2px; }
+
+@media(max-width:500px) {
+  .game-title { font-size:1.2rem; }
+  .lesson-title { font-size:0.5rem; }
+}
+</style>
+</head>
+<body>
+
+<div id="stars"></div>
+<div id="progress-top" style="width:0%"></div>
+<div id="toast"></div>
+
+<div id="levelup-modal">
+  <div class="levelup-card">
+    <div class="levelup-emoji" id="lu-emoji">🎉</div>
+    <div class="levelup-title" id="lu-title">LEVEL UP!</div>
+    <div class="levelup-msg" id="lu-msg">You've unlocked a new level!</div>
+    <button class="levelup-close" onclick="closeLevelUp()">AWESOME!</button>
+  </div>
+</div>
+
+<div id="app">
+  <div id="header">
+    <div class="game-title">⚡ GIT QUEST ⚡</div>
+    <div class="game-subtitle">The Interactive Git Command Adventure</div>
+  </div>
+
+  <!-- HUD -->
+  <div id="hud">
+    <div class="hud-stat">
+      <span class="hud-label">LVL</span>
+      <span class="hud-val" id="hud-level">1</span>
+    </div>
+    <div class="xp-bar-wrap">
+      <div class="xp-bar-fill" id="xp-bar" style="width:0%"></div>
+    </div>
+    <div class="hud-stat">
+      <span class="hud-val" id="hud-xp">0</span>
+      <span class="hud-label">/ <span id="hud-xp-max">100</span> XP</span>
+    </div>
+    <div class="hud-stat">
+      <span class="hud-label">🏆</span>
+      <span class="hud-val" id="hud-cmds">0</span>
+      <span class="hud-label">COMMANDS</span>
+    </div>
+    <div class="level-badge" id="level-badge">NEWBIE</div>
+  </div>
+
+  <div id="main-grid">
+    <!-- SIDEBAR -->
+    <div id="sidebar">
+      <div class="panel">
+        <div class="panel-title">📋 COMMAND MAP</div>
+        <ul class="cmd-list" id="cmd-list"></ul>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">🏆 ACHIEVEMENTS</div>
+        <div id="achievements-list"></div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div id="content">
+      <div id="lessons-container"></div>
+
+      <!-- CHEAT SHEET -->
+      <div id="cheatsheet">
+        <div class="cs-title">⚡ ULTIMATE GIT CHEAT SHEET ⚡</div>
+        <div class="cs-grid" id="cs-grid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  DATA
+// ============================================================
+const LEVELS = [
+  { level:1, title:"NEWBIE", xpNeeded:0, color:"#ff6b6b" },
+  { level:2, title:"EXPLORER", xpNeeded:100, color:"#ffd43b" },
+  { level:3, title:"COMMITTER", xpNeeded:250, color:"#51cf66" },
+  { level:4, title:"BRANCHER", xpNeeded:450, color:"#00f5ff" },
+  { level:5, title:"COLLABORATOR", xpNeeded:700, color:"#bf5fff" },
+  { level:6, title:"GIT MASTER", xpNeeded:1000, color:"#39ff14" },
+];
+
+const ACHIEVEMENTS = [
+  { id:"first_cmd", icon:"🌟", name:"First Step", desc:"Run your first git command", trigger:"any_cmd" },
+  { id:"init_done", icon:"🏗️", name:"Builder", desc:"Initialized a repository", trigger:"git init" },
+  { id:"first_commit", icon:"📸", name:"Snapshot!", desc:"Made your first commit", trigger:"git commit" },
+  { id:"brancher", icon:"🌿", name:"Branch Out", desc:"Created your first branch", trigger:"git branch" },
+  { id:"stasher", icon:"🗄️", name:"Hoarder", desc:"Stashed your work", trigger:"git stash" },
+  { id:"team_player", icon:"🤝", name:"Team Player", desc:"Pushed to remote", trigger:"git push" },
+  { id:"five_cmds", icon:"🔥", name:"On Fire!", desc:"Learned 5 commands", trigger:"5_cmds" },
+  { id:"all_done", icon:"👑", name:"GIT MASTER", desc:"Completed all lessons", trigger:"all_done" },
+];
+
+const LESSONS = [
+  {
+    id:"setup",
+    icon:"🛠️",
+    num:"LESSON 01",
+    title:"SETUP — Tell Git Who You Are",
+    xp:50,
+    commands:["git config --global user.name", "git config --global user.email", "git config --list"],
+    story: "You've just joined Galaxy Corp's dev team. Before you can touch a single file, Mission Control needs to know your identity. Every commit you make will be stamped with your name — like a fingerprint on the universe.",
+    analogy: "Think of this like setting up your gamer profile. Before you start playing, you enter your username and email. Now every kill, every score — it's yours.",
+    syntax: `<span class="sy-comment"># Tell Git your name (one-time setup)</span>
+<span class="sy-cmd">git config</span> <span class="sy-flag">--global</span> <span class="sy-key">user.name</span> <span class="sy-str">"Your Name"</span>
+
+<span class="sy-comment"># Tell Git your email</span>
+<span class="sy-cmd">git config</span> <span class="sy-flag">--global</span> <span class="sy-key">user.email</span> <span class="sy-str">"you@email.com"</span>
+
+<span class="sy-comment"># Check your configuration</span>
+<span class="sy-cmd">git config</span> <span class="sy-flag">--list</span>`,
+    quickCmds: ["git config --global user.name \"Alex\"", "git config --global user.email \"alex@school.com\"", "git config --list"],
+    terminalResponses: {
+      "git config --global user.name": ["✓ Username set successfully!", "Your name is now attached to all future commits."],
+      "git config --global user.email": ["✓ Email configured!", "Mission Control has registered your identity."],
+      "git config --list": ["user.name=Alex", "user.email=alex@school.com", "core.editor=vim", "color.ui=true", "✓ Config loaded!"],
+      "git config": ["Try: git config --global user.name \"YourName\""],
+    },
+    challenge: "Set your name to 'Alex' and your email to 'alex@school.com'. Then check the config.",
+    challengeHint: "Try: git config --global user.name \"Alex\"",
+    diagram: null
+  },
+  {
+    id:"init",
+    icon:"🏗️",
+    num:"LESSON 02",
+    title:"INIT & CLONE — Start Your Project",
+    xp:60,
+    commands:["git init", "git clone"],
+    story: "You've received your mission: build a new project. Your first task? Set up the command center. Every great project starts with one command. OR you can beam down an existing project from the cloud.",
+    analogy: "git init is like placing a GPS tracker on your project folder. From now on, Git watches every move. git clone is like teleporting an entire project from GitHub right onto your computer.",
+    syntax: `<span class="sy-comment"># Create a new folder and enter it</span>
+<span class="sy-cmd">mkdir</span> my-awesome-project
+<span class="sy-cmd">cd</span> my-awesome-project
+
+<span class="sy-comment"># Initialize Git (starts tracking)</span>
+<span class="sy-cmd">git init</span>
+
+<span class="sy-comment"># — OR — download an existing project</span>
+<span class="sy-cmd">git clone</span> <span class="sy-str">&lt;github-url&gt;</span>
+
+<span class="sy-comment"># Clone into a specific folder name</span>
+<span class="sy-cmd">git clone</span> <span class="sy-str">&lt;url&gt;</span> <span class="sy-branch">my-folder</span>`,
+    quickCmds: ["git init", "git clone https://github.com/example/repo"],
+    terminalResponses: {
+      "git init": ["Initialized empty Git repository in /my-awesome-project/.git/", "✓ Your project is now being tracked!", "The .git folder has been created."],
+      "git clone": ["Cloning into 'repo'...", "remote: Enumerating objects: 42...", "remote: Counting objects: 100%", "Receiving objects: 100% (42/42), done.", "✓ Repository cloned successfully!"],
+      "mkdir": ["✓ Directory created!"],
+    },
+    challenge: "Initialize a new Git repository. Look at what command confirms it worked.",
+    challengeHint: "Just type: git init",
+    diagram: {
+      items: [
+        {label:"Your Folder", name:"📁 project/"},
+        {arrow:"→"},
+        {label:"git init", name:"🔍 Watching"},
+        {arrow:"→"},
+        {label:".git folder", name:"💾 Tracking"}
+      ]
+    }
+  },
+  {
+    id:"status_add_commit",
+    icon:"📸",
+    num:"LESSON 03",
+    title:"STATUS → ADD → COMMIT",
+    xp:80,
+    commands:["git status", "git add", "git commit"],
+    story: "You've written some beautiful code. Now you need to preserve it — like saving a checkpoint in a video game. But Git has a clever 3-step process: CHECK what changed, STAGE what you want to save, then COMMIT it forever.",
+    analogy: "Imagine you're a chef. git status shows you all the dishes on the counter. git add . means you're putting the dishes into the oven. git commit is when the food is DONE — it's officially cooked and served!",
+    syntax: `<span class="sy-comment"># 1. Check what's going on</span>
+<span class="sy-cmd">git status</span>
+
+<span class="sy-comment"># 2a. Stage all changes</span>
+<span class="sy-cmd">git add</span> <span class="sy-flag">.</span>
+
+<span class="sy-comment"># 2b. Stage a specific file</span>
+<span class="sy-cmd">git add</span> <span class="sy-branch">index.html</span>
+
+<span class="sy-comment"># 3. Commit with a message</span>
+<span class="sy-cmd">git commit</span> <span class="sy-flag">-m</span> <span class="sy-str">"Your descriptive message"</span>
+
+<span class="sy-comment"># Shortcut: stage tracked files AND commit</span>
+<span class="sy-cmd">git commit</span> <span class="sy-flag">-am</span> <span class="sy-str">"Quick commit"</span>
+
+<span class="sy-comment"># See your commit history</span>
+<span class="sy-cmd">git log</span> <span class="sy-flag">--oneline</span>`,
+    quickCmds: ["git status", "git add .", "git commit -m \"My first commit\"", "git log --oneline"],
+    terminalResponses: {
+      "git status": ["On branch main", "Untracked files:", "  (use \"git add <file>...\" to include in what will be committed)", "\tindex.html", "\tstyle.css", "nothing added to commit but untracked files present"],
+      "git add .": ["✓ All files staged for commit!", "Changes ready to be committed."],
+      "git add": ["✓ File staged! Run 'git status' to see the staged changes."],
+      "git commit": ["[main (root-commit) a3f8c21] My first commit", " 2 files changed, 47 insertions(+)", " create mode 100644 index.html", " create mode 100644 style.css", "✓ Snapshot saved! Your work is preserved."],
+      "git log": ["a3f8c21 (HEAD -> main) My first commit", "✓ 1 commit in history"],
+    },
+    challenge: "Check the status, stage all files, then make a commit with the message 'First commit'.",
+    challengeHint: "Three commands: git status → git add . → git commit -m \"First commit\"",
+    diagram: {
+      items: [
+        {label:"Working Dir", name:"✏️ Editing"},
+        {arrow:"→"},
+        {label:"git add .", name:"🪞 Staging"},
+        {arrow:"→"},
+        {label:"git commit", name:"💾 History"}
+      ]
+    }
+  },
+  {
+    id:"branch",
+    icon:"🌿",
+    num:"LESSON 04",
+    title:"BRANCH — Parallel Universes",
+    xp:90,
+    commands:["git branch", "git checkout", "git switch"],
+    story: "The client wants a dark mode feature but you can't break the working website. Solution? You step into a parallel universe — a branch — where you can experiment freely without touching the real timeline.",
+    analogy: "Branches are like parallel save slots in a game. Your MAIN save is safe. You can start a NEW game on a different slot, try crazy stuff, and if it works — load it back into main. If it fails — just delete that slot!",
+    syntax: `<span class="sy-comment"># See all branches (* = current)</span>
+<span class="sy-cmd">git branch</span>
+
+<span class="sy-comment"># Create a new branch</span>
+<span class="sy-cmd">git branch</span> <span class="sy-branch">dark-mode</span>
+
+<span class="sy-comment"># Switch to the branch</span>
+<span class="sy-cmd">git checkout</span> <span class="sy-branch">dark-mode</span>
+
+<span class="sy-comment"># ✨ Modern shortcut: create + switch</span>
+<span class="sy-cmd">git checkout</span> <span class="sy-flag">-b</span> <span class="sy-branch">dark-mode</span>
+
+<span class="sy-comment"># Even newer syntax</span>
+<span class="sy-cmd">git switch</span> <span class="sy-flag">-c</span> <span class="sy-branch">dark-mode</span>
+
+<span class="sy-comment"># Go back to main</span>
+<span class="sy-cmd">git checkout</span> <span class="sy-branch">main</span>
+
+<span class="sy-comment"># Delete a branch (after merging)</span>
+<span class="sy-cmd">git branch</span> <span class="sy-flag">-d</span> <span class="sy-branch">dark-mode</span>`,
+    quickCmds: ["git branch", "git branch dark-mode", "git checkout dark-mode", "git checkout -b feature-login", "git checkout main"],
+    terminalResponses: {
+      "git branch": ["* main", "  dark-mode", "  feature-login", "✓ Currently on: main"],
+      "git checkout": ["Switched to branch 'dark-mode'", "✓ You're now in the dark-mode dimension!"],
+      "git switch": ["Switched to a new branch 'dark-mode'", "✓ Branch created and switched!"],
+      "git branch -d": ["Deleted branch dark-mode (was 8a3bc1f).", "✓ Branch removed safely."],
+    },
+    challenge: "Create a new branch called 'dark-mode', then switch to it.",
+    challengeHint: "One shortcut does both: git checkout -b dark-mode",
+    diagram: {
+      items: [
+        {label:"main branch", name:"🔵 main"},
+        {arrow:"→"},
+        {label:"branch off", name:"⬆️ checkout -b"},
+        {arrow:"→"},
+        {label:"new branch", name:"🟢 dark-mode"}
+      ]
+    }
+  },
+  {
+    id:"merge",
+    icon:"🧩",
+    num:"LESSON 05",
+    title:"MERGE — Unite the Timelines",
+    xp:90,
+    commands:["git merge"],
+    story: "Your dark mode feature is perfect! The parallel universe experiment was a success. Time to bring it back into the main timeline. This is merging — combining two branches into one.",
+    analogy: "You've been baking an experimental cake in a separate kitchen. It turned out amazing! Merging is like bringing that finished cake into the main restaurant menu. Both the original menu AND the cake now exist together.",
+    syntax: `<span class="sy-comment"># Step 1: Switch to your target branch</span>
+<span class="sy-cmd">git checkout</span> <span class="sy-branch">main</span>
+
+<span class="sy-comment"># Step 2: Merge the feature branch IN</span>
+<span class="sy-cmd">git merge</span> <span class="sy-branch">dark-mode</span>
+
+<span class="sy-comment"># If merge conflict — fix file, then:</span>
+<span class="sy-cmd">git add</span> <span class="sy-flag">.</span>
+<span class="sy-cmd">git commit</span> <span class="sy-flag">-m</span> <span class="sy-str">"Resolved merge conflict"</span>
+
+<span class="sy-comment"># Merge with a commit message</span>
+<span class="sy-cmd">git merge</span> <span class="sy-flag">--no-ff</span> <span class="sy-branch">dark-mode</span>
+
+<span class="sy-comment"># Clean up after merging</span>
+<span class="sy-cmd">git branch</span> <span class="sy-flag">-d</span> <span class="sy-branch">dark-mode</span>`,
+    quickCmds: ["git checkout main", "git merge dark-mode", "git merge --no-ff feature-login"],
+    terminalResponses: {
+      "git merge": ["Updating a3f8c21..9e2d4b1", "Fast-forward", " darkmode.css  |  45 ++++++", " index.html    |   8 ++-", "✓ Merge successful! Timelines united."],
+      "git checkout main": ["Switched to branch 'main'", "Your branch is up to date.", "✓ Back to main timeline."],
+    },
+    challenge: "Switch to main and merge the 'dark-mode' branch into it.",
+    challengeHint: "Two steps: git checkout main → git merge dark-mode",
+    diagram: {
+      items: [
+        {label:"main", name:"🔵 A→B→C"},
+        {arrow:"+"},
+        {label:"dark-mode", name:"🟢 D→E→F"},
+        {arrow:"→"},
+        {label:"merged", name:"✨ A→B→C+D+E+F"}
+      ]
+    }
+  },
+  {
+    id:"stash",
+    icon:"🗄️",
+    num:"LESSON 06",
+    title:"STASH — Pocket Your Work",
+    xp:70,
+    commands:["git stash", "git stash pop", "git stash list"],
+    story: "You're halfway through the dark mode feature when your boss bursts in: 'CRITICAL BUG ON MAIN — FIX NOW!' Your code is half-finished, you can't commit this mess. What do you do? You stash it — pocket it for later.",
+    analogy: "Stashing is like stuffing your messy work-in-progress into a drawer before your boss comes to inspect your desk. The desk is clean. Your work is safe. When the boss leaves — open the drawer and continue!",
+    syntax: `<span class="sy-comment"># Save unfinished work to the stash</span>
+<span class="sy-cmd">git stash</span>
+
+<span class="sy-comment"># Stash with a label</span>
+<span class="sy-cmd">git stash push</span> <span class="sy-flag">-m</span> <span class="sy-str">"half-done dark mode"</span>
+
+<span class="sy-comment"># See what you've stashed</span>
+<span class="sy-cmd">git stash list</span>
+
+<span class="sy-comment"># Bring the latest stash back</span>
+<span class="sy-cmd">git stash pop</span>
+
+<span class="sy-comment"># Bring back a specific stash</span>
+<span class="sy-cmd">git stash apply</span> <span class="sy-branch">stash@{1}</span>
+
+<span class="sy-comment"># Delete a stash</span>
+<span class="sy-cmd">git stash drop</span>`,
+    quickCmds: ["git stash", "git stash list", "git stash pop", "git stash push -m \"dark mode WIP\""],
+    terminalResponses: {
+      "git stash": ["Saved working directory and index state WIP on dark-mode", "HEAD is now at 9e2d4b1", "✓ Work pocketed! Workspace is clean."],
+      "git stash list": ["stash@{0}: WIP on dark-mode: 9e2d4b1 Added header styles", "stash@{1}: WIP on main: a3f8c21 Initial commit", "✓ 2 stashes in your pocket!"],
+      "git stash pop": ["On branch dark-mode", "Changes not staged for commit:", "\tmodified: style.css", "Dropped stash@{0}", "✓ Work restored! Continue where you left off."],
+      "git stash drop": ["Dropped stash@{0} (abc123)", "✓ Stash deleted."],
+    },
+    challenge: "Stash your current work, then bring it back with stash pop.",
+    challengeHint: "git stash → do other stuff → git stash pop",
+    diagram: null
+  },
+  {
+    id:"log_diff",
+    icon:"🔍",
+    num:"LESSON 07",
+    title:"LOG & DIFF — Time Travel",
+    xp:70,
+    commands:["git log", "git diff", "git show"],
+    story: "Three weeks later, something's broken. You need to investigate. When did it break? What changed? Git is your time machine — you can inspect every single change ever made to the project.",
+    analogy: "git log is like reading your project's diary. git diff is like holding two versions of a photo side by side and seeing exactly what changed — added lines glow green, removed lines glow red.",
+    syntax: `<span class="sy-comment"># See full commit history</span>
+<span class="sy-cmd">git log</span>
+
+<span class="sy-comment"># Compact, one-line history</span>
+<span class="sy-cmd">git log</span> <span class="sy-flag">--oneline</span>
+
+<span class="sy-comment"># Visual branch graph</span>
+<span class="sy-cmd">git log</span> <span class="sy-flag">--oneline --graph --all</span>
+
+<span class="sy-comment"># See unstaged changes</span>
+<span class="sy-cmd">git diff</span>
+
+<span class="sy-comment"># See staged changes (before commit)</span>
+<span class="sy-cmd">git diff</span> <span class="sy-flag">--staged</span>
+
+<span class="sy-comment"># See a specific commit</span>
+<span class="sy-cmd">git show</span> <span class="sy-hash">abc1234</span>`,
+    quickCmds: ["git log --oneline", "git log --oneline --graph --all", "git diff", "git diff --staged"],
+    terminalResponses: {
+      "git log": ["commit 9e2d4b1c (HEAD -> main)", "Author: Alex <alex@school.com>", "Date:   Mon Jan 15 14:30:00 2025", "    Added dark mode feature", "", "commit a3f8c210", "Author: Alex <alex@school.com>", "    Initial commit"],
+      "git log --oneline": ["9e2d4b1 (HEAD -> main) Added dark mode", "a3f8c21 Fixed navbar bug", "b2c3d4e Initial commit", "✓ 3 commits in history"],
+      "git diff": ["diff --git a/style.css b/style.css", "--- a/style.css", "+++ b/style.css", "@@ -12,6 +12,10 @@", "-  color: black;", "+  color: #1a1a2e;", "+  background: #0d0d20;", "✓ Showing unstaged changes"],
+      "git show": ["commit 9e2d4b1c...", "Author: Alex", "+++ added dark mode styles", "✓ Commit details shown!"],
+    },
+    challenge: "View your commit history in one-line format, then see the graph.",
+    challengeHint: "Try: git log --oneline then git log --oneline --graph --all",
+    diagram: null
+  },
+  {
+    id:"undo",
+    icon:"↩️",
+    num:"LESSON 08",
+    title:"UNDO — Fix Your Mistakes",
+    xp:80,
+    commands:["git restore", "git revert", "git reset"],
+    story: "You committed a bug. The whole team is yelling. The app is down. Don't panic — Git's undo system is your superhero cape. There are three ways to fix things, and each has a different power level.",
+    analogy: "restore = Ctrl+Z (undo typing). revert = White-out (covers the mistake, history stays). reset --hard = Time machine (full rollback, like it never happened — but DANGEROUS on shared code!).",
+    syntax: `<span class="sy-comment"># Undo UNSTAGED changes in a file</span>
+<span class="sy-cmd">git restore</span> <span class="sy-branch">filename.html</span>
+
+<span class="sy-comment"># Unstage a file (undo git add)</span>
+<span class="sy-cmd">git restore</span> <span class="sy-flag">--staged</span> <span class="sy-branch">filename.html</span>
+
+<span class="sy-comment"># Safe undo: creates new commit</span>
+<span class="sy-cmd">git revert</span> <span class="sy-hash">abc1234</span>
+
+<span class="sy-comment"># ⚠️ SOFT reset (keeps changes staged)</span>
+<span class="sy-cmd">git reset</span> <span class="sy-flag">--soft</span> HEAD~1
+
+<span class="sy-comment"># ⚠️ HARD reset (DESTROYS changes!)</span>
+<span class="sy-cmd">git reset</span> <span class="sy-flag">--hard</span> HEAD~1`,
+    quickCmds: ["git restore index.html", "git restore --staged style.css", "git revert HEAD", "git reset --soft HEAD~1"],
+    terminalResponses: {
+      "git restore": ["✓ File restored to last committed state!", "All unsaved changes in that file are gone."],
+      "git revert": ["[main 1a2b3c4] Revert \"Added broken feature\"", "1 file changed, 3 deletions(-)", "✓ Revert commit created! History is clean."],
+      "git reset": ["Unstaged changes after reset:", "M   index.html", "✓ HEAD moved back one commit. Changes kept."],
+      "git reset --hard": ["HEAD is now at a3f8c21 Initial commit", "⚠️  Hard reset complete. Changes are gone!"],
+    },
+    challenge: "Use git restore on 'index.html' to discard unstaged changes.",
+    challengeHint: "git restore index.html",
+    diagram: null
+  },
+  {
+    id:"remote",
+    icon:"☁️",
+    num:"LESSON 09",
+    title:"PUSH & PULL — The Cloud Sync",
+    xp:90,
+    commands:["git push", "git pull", "git fetch", "git remote"],
+    story: "Your local work is perfect. Now your team needs it! Time to send your commits to GitHub — the cloud home for your project. And when teammates push THEIR work, you need to pull it down to stay in sync.",
+    analogy: "git push = uploading your game save to the cloud. git pull = downloading a friend's save to see their progress. git fetch = checking if there are new saves WITHOUT downloading them yet.",
+    syntax: `<span class="sy-comment"># Connect to a remote (GitHub)</span>
+<span class="sy-cmd">git remote add</span> origin <span class="sy-str">https://github.com/you/repo.git</span>
+
+<span class="sy-comment"># See your remotes</span>
+<span class="sy-cmd">git remote</span> <span class="sy-flag">-v</span>
+
+<span class="sy-comment"># Upload commits to GitHub</span>
+<span class="sy-cmd">git push</span> origin <span class="sy-branch">main</span>
+
+<span class="sy-comment"># First-time push (sets upstream)</span>
+<span class="sy-cmd">git push</span> <span class="sy-flag">-u</span> origin <span class="sy-branch">main</span>
+
+<span class="sy-comment"># Download updates, don't merge yet</span>
+<span class="sy-cmd">git fetch</span>
+
+<span class="sy-comment"># Download AND merge in one go</span>
+<span class="sy-cmd">git pull</span>`,
+    quickCmds: ["git remote -v", "git push origin main", "git fetch", "git pull"],
+    terminalResponses: {
+      "git remote": ["origin  https://github.com/alex/project.git (fetch)", "origin  https://github.com/alex/project.git (push)", "✓ Remote connections listed!"],
+      "git push": ["Enumerating objects: 7, done.", "Counting objects: 100% (7/7), done.", "To https://github.com/alex/project.git", "   a3f8c21..9e2d4b1  main -> main", "✓ Pushed to GitHub! Your team can see your work."],
+      "git fetch": ["From https://github.com/alex/project.git", "   a3f8c21..c8d9e0f  main -> origin/main", "✓ Updates downloaded (not merged yet)!"],
+      "git pull": ["From https://github.com/alex/project.git", " * branch  main -> FETCH_HEAD", "Already up to date.", "✓ You're in sync with the team!"],
+    },
+    challenge: "Check your remotes, then push main to origin.",
+    challengeHint: "git remote -v → git push origin main",
+    diagram: {
+      items: [
+        {label:"Your Computer", name:"💻 Local"},
+        {arrow:"↑push↓pull"},
+        {label:"GitHub Cloud", name:"☁️ Remote"}
+      ]
+    }
+  },
+  {
+    id:"pullrequest",
+    icon:"👮",
+    num:"LESSON 10",
+    title:"PULL REQUESTS — Code Review",
+    xp:100,
+    commands:["git push origin branch"],
+    story: "In the real world, you never just yeet your code into main. You open a Pull Request — a formal request asking your team to REVIEW your code before it merges. It's like getting your essay proofread before submitting.",
+    analogy: "A PR is like showing your homework to the teacher before turning it in. The teacher (your team) checks for mistakes, suggests improvements, and only stamps APPROVED when it's ready. This keeps the main branch always stable!",
+    syntax: `<span class="sy-comment"># 1. Push your feature branch to GitHub</span>
+<span class="sy-cmd">git push</span> origin <span class="sy-branch">dark-mode</span>
+
+<span class="sy-comment"># 2. On GitHub.com:</span>
+<span class="sy-comment">#    → Click "Compare & pull request"</span>
+<span class="sy-comment">#    → Add title + description</span>
+<span class="sy-comment">#    → Click "Create pull request"</span>
+
+<span class="sy-comment"># 3. Team reviews → requests changes</span>
+
+<span class="sy-comment"># 4. Make changes locally, push again</span>
+<span class="sy-cmd">git add</span> <span class="sy-flag">.</span>
+<span class="sy-cmd">git commit</span> <span class="sy-flag">-m</span> <span class="sy-str">"Fixed review feedback"</span>
+<span class="sy-cmd">git push</span> origin <span class="sy-branch">dark-mode</span>
+
+<span class="sy-comment"># 5. Approved? Click MERGE on GitHub ✓</span>`,
+    quickCmds: ["git push origin dark-mode", "git push origin feature-login"],
+    terminalResponses: {
+      "git push origin dark-mode": ["Enumerating objects: 5, done.", "Branch 'dark-mode' set up to track 'origin/dark-mode'.", "To https://github.com/alex/project.git", " * [new branch]  dark-mode -> dark-mode", "✓ Branch pushed! Now open a PR on GitHub."],
+      "git push": ["✓ Pushed! Head to GitHub and open your Pull Request."],
+    },
+    challenge: "Push the 'dark-mode' branch to origin so you can open a PR.",
+    challengeHint: "git push origin dark-mode",
+    diagram: {
+      items: [
+        {label:"Push Branch", name:"📤 git push"},
+        {arrow:"→"},
+        {label:"Open PR", name:"🔍 Review"},
+        {arrow:"→"},
+        {label:"Approved", name:"✅ Merge!"}
+      ]
+    }
+  }
+];
+
+const CHEATSHEET = [
+  {cmd:"git init", desc:"Start tracking a project"},
+  {cmd:"git clone <url>", desc:"Download a repo from GitHub"},
+  {cmd:"git status", desc:"See what's changed"},
+  {cmd:"git add .", desc:"Stage all changes"},
+  {cmd:"git add <file>", desc:"Stage one file"},
+  {cmd:"git commit -m \"msg\"", desc:"Save a snapshot"},
+  {cmd:"git log --oneline", desc:"View compact history"},
+  {cmd:"git diff", desc:"See unstaged changes"},
+  {cmd:"git branch", desc:"List all branches"},
+  {cmd:"git branch <name>", desc:"Create a branch"},
+  {cmd:"git checkout <branch>", desc:"Switch branches"},
+  {cmd:"git checkout -b <name>", desc:"Create + switch branch"},
+  {cmd:"git merge <branch>", desc:"Merge a branch"},
+  {cmd:"git stash", desc:"Pocket unfinished work"},
+  {cmd:"git stash pop", desc:"Restore stashed work"},
+  {cmd:"git restore <file>", desc:"Undo file changes"},
+  {cmd:"git revert <id>", desc:"Safe undo (new commit)"},
+  {cmd:"git reset --hard", desc:"⚠️ Hard rollback"},
+  {cmd:"git remote -v", desc:"Show remote connections"},
+  {cmd:"git push origin main", desc:"Upload to GitHub"},
+  {cmd:"git pull", desc:"Download + merge updates"},
+  {cmd:"git fetch", desc:"Download without merging"},
+  {cmd:"git config --global", desc:"Set global Git config"},
+  {cmd:"git show <id>", desc:"Inspect a commit"},
+];
+
+// ============================================================
+//  STATE
+// ============================================================
+let state = {
+  xp: 0,
+  level: 1,
+  openLesson: null,
+  learnedCmds: new Set(),
+  completedLessons: new Set(),
+  unlockedAchievements: new Set(),
+  totalCmdsRun: 0,
+};
+
+// ============================================================
+//  STARS
+// ============================================================
+function buildStars() {
+  const container = document.getElementById('stars');
+  for (let i = 0; i < 120; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2.5 + 0.5;
+    s.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      top:${Math.random()*100}%;
+      --d:${(Math.random()*3+2).toFixed(1)}s;
+      --min-op:${(Math.random()*0.3+0.05).toFixed(2)};
+      animation-delay:${(Math.random()*4).toFixed(1)}s;
+    `;
+    container.appendChild(s);
+  }
+}
+
+// ============================================================
+//  RENDER
+// ============================================================
+function buildUI() {
+  buildCmdList();
+  buildAchievements();
+  buildLessons();
+  buildCheatsheet();
+}
+
+function buildCmdList() {
+  const list = document.getElementById('cmd-list');
+  const allCmds = LESSONS.flatMap(l => l.commands);
+  list.innerHTML = '';
+  allCmds.forEach(cmd => {
+    const li = document.createElement('li');
+    li.className = 'cmd-item' + (state.learnedCmds.has(cmd) ? ' learned' : '');
+    li.dataset.cmd = cmd;
+    const cat = LESSONS.find(l => l.commands.includes(cmd));
+    const colors = {'LESSON 01':'#ff6b6b','LESSON 02':'#ffd43b','LESSON 03':'#51cf66','LESSON 04':'#00f5ff','LESSON 05':'#bf5fff','LESSON 06':'#ff7700','LESSON 07':'#ff006e','LESSON 08':'#39ff14','LESSON 09':'#00a8ff','LESSON 10':'#ffe600'};
+    const col = cat ? colors[cat.num] || '#fff' : '#fff';
+    li.innerHTML = `
+      <div class="cmd-check">${state.learnedCmds.has(cmd) ? '✓' : ''}</div>
+      <div class="cmd-name">${cmd}</div>
+    `;
+    li.style.cursor = 'default';
+    list.appendChild(li);
+  });
+}
+
+function buildAchievements() {
+  const cont = document.getElementById('achievements-list');
+  cont.innerHTML = '';
+  ACHIEVEMENTS.forEach(a => {
+    const div = document.createElement('div');
+    div.className = 'achievement' + (state.unlockedAchievements.has(a.id) ? ' unlocked' : '');
+    div.id = 'ach-' + a.id;
+    div.innerHTML = `
+      <div class="achieve-icon">${a.icon}</div>
+      <div>
+        <div class="achieve-name">${a.name}</div>
+        <div class="achieve-desc">${a.desc}</div>
+      </div>
+    `;
+    cont.appendChild(div);
+  });
+}
+
+function buildLessons() {
+  const container = document.getElementById('lessons-container');
+  container.innerHTML = '';
+  LESSONS.forEach((lesson, idx) => {
+    const card = document.createElement('div');
+    card.className = 'lesson-card' + (state.completedLessons.has(lesson.id) ? ' done-lesson' : '');
+    card.id = 'lesson-' + lesson.id;
+
+    const isOpen = state.openLesson === lesson.id;
+
+    card.innerHTML = `
+      <div class="lesson-header" onclick="toggleLesson('${lesson.id}')">
+        <div class="lesson-icon">${lesson.icon}</div>
+        <div class="lesson-meta">
+          <div class="lesson-num">${lesson.num}</div>
+          <div class="lesson-title">${lesson.title}</div>
+        </div>
+        <div class="lesson-xp">+${lesson.xp} XP</div>
+        ${state.completedLessons.has(lesson.id) ? '<div class="lesson-done-mark">✓</div>' : ''}
+      </div>
+      <div class="lesson-body${isOpen ? ' open' : ''}" id="body-${lesson.id}">
+        ${buildLessonBody(lesson)}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function buildLessonBody(lesson) {
+  let diagramHTML = '';
+  if (lesson.diagram) {
+    const items = lesson.diagram.items.map(item => {
+      if (item.arrow) return `<div class="d-arrow">${item.arrow}</div>`;
+      return `<div class="d-box"><div class="d-label">${item.label}</div><div class="d-name">${item.name}</div></div>`;
+    }).join('');
+    diagramHTML = `<div class="diagram">${items}</div>`;
+  }
+
+  const quickBtns = lesson.quickCmds.map(cmd =>
+    `<button class="quick-btn" onclick="fillTerminal('${lesson.id}', '${cmd.replace(/'/g,"\\'")}')">${cmd}</button>`
+  ).join('');
+
+  const isCompleted = state.completedLessons.has(lesson.id);
+
+  return `
+    <div class="story-box">${lesson.story}</div>
+    <div class="analogy-box">${lesson.analogy}</div>
+    ${diagramHTML}
+    <div class="syntax-block">${lesson.syntax}</div>
+    <div class="terminal-wrap">
+      <div class="terminal" id="term-${lesson.id}">
+        <div class="terminal-bar">
+          <div class="t-dot r"></div>
+          <div class="t-dot y"></div>
+          <div class="t-dot g"></div>
+          <div class="t-title">git-quest ~ interactive terminal</div>
+        </div>
+        <div class="terminal-output" id="tout-${lesson.id}">
+          <div class="t-line"><span class="t-info">» Type a git command below and press Enter or RUN</span></div>
+          <div class="t-line"><span class="t-info">» Or click a quick command button!</span></div>
+        </div>
+        <div class="quick-cmds">${quickBtns}</div>
+        <div class="terminal-input-row">
+          <span class="t-prompt-fixed">$ </span>
+          <input class="terminal-input" id="tin-${lesson.id}" placeholder="type a git command..." autocomplete="off" autocorrect="off" spellcheck="false"
+            onkeydown="if(event.key==='Enter') runTerminal('${lesson.id}')">
+          <button class="t-run-btn" onclick="runTerminal('${lesson.id}')">▶ RUN</button>
+        </div>
+      </div>
+    </div>
+    <div class="challenge-box">
+      <div class="challenge-title">⚔️ CHALLENGE</div>
+      <div class="challenge-task">${lesson.challenge}</div>
+      <div class="challenge-hint" id="hint-${lesson.id}" onclick="revealHint('${lesson.id}')">
+        💬 Click to reveal hint...
+      </div>
+    </div>
+    <button class="complete-btn" id="cbtn-${lesson.id}" onclick="completeLesson('${lesson.id}')" ${isCompleted ? 'disabled' : ''}>
+      ${isCompleted ? '✓ LESSON COMPLETE!' : '⚡ MARK AS COMPLETE & EARN ' + lesson.xp + ' XP'}
+    </button>
+  `;
+}
+
+function buildCheatsheet() {
+  const grid = document.getElementById('cs-grid');
+  grid.innerHTML = '';
+  CHEATSHEET.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'cs-item';
+    div.innerHTML = `<div class="cs-cmd">${item.cmd}</div><div class="cs-desc">${item.desc}</div>`;
+    grid.appendChild(div);
+  });
+}
+
+// ============================================================
+//  INTERACTIONS
+// ============================================================
+function toggleLesson(id) {
+  const body = document.getElementById('body-' + id);
+  const card = document.getElementById('lesson-' + id);
+
+  if (state.openLesson === id) {
+    body.classList.remove('open');
+    card.classList.remove('active-lesson');
+    state.openLesson = null;
+  } else {
+    // Close previous
+    if (state.openLesson) {
+      const prevBody = document.getElementById('body-' + state.openLesson);
+      const prevCard = document.getElementById('lesson-' + state.openLesson);
+      if (prevBody) prevBody.classList.remove('open');
+      if (prevCard) prevCard.classList.remove('active-lesson');
+    }
+    state.openLesson = id;
+    body.classList.add('open');
+    card.classList.add('active-lesson');
+    card.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+}
+
+function fillTerminal(lessonId, cmd) {
+  const input = document.getElementById('tin-' + lessonId);
+  if (input) {
+    input.value = cmd;
+    input.focus();
+  }
+}
+
+function runTerminal(lessonId) {
+  const input = document.getElementById('tin-' + lessonId);
+  const output = document.getElementById('tout-' + lessonId);
+  if (!input || !output) return;
+
+  const raw = input.value.trim();
+  if (!raw) return;
+
+  // Echo the command
+  const cmdLine = document.createElement('div');
+  cmdLine.className = 't-line';
+  cmdLine.innerHTML = `<span class="t-prompt">$ </span><span class="t-input-text">${escHtml(raw)}</span>`;
+  output.appendChild(cmdLine);
+
+  // Find response
+  const lesson = LESSONS.find(l => l.id === lessonId);
+  let responses = null;
+
+  if (lesson) {
+    for (const [key, resp] of Object.entries(lesson.terminalResponses || {})) {
+      if (raw.startsWith(key) || raw === key) {
+        responses = resp;
+        break;
+      }
+    }
+  }
+
+  if (!responses) {
+    responses = getGenericResponse(raw);
+  }
+
+  // Animate responses
+  responses.forEach((line, i) => {
+    setTimeout(() => {
+      const lineEl = document.createElement('div');
+      lineEl.className = 't-line';
+      const cls = line.startsWith('✓') ? 't-success' : line.startsWith('⚠️') ? 't-warn' : line.startsWith('→') ? 't-info' : 't-output';
+      lineEl.innerHTML = `<span class="${cls}">${escHtml(line)}</span>`;
+      output.appendChild(lineEl);
+      output.scrollTop = output.scrollHeight;
+    }, i * 80);
+  });
+
+  // Track command learning
+  const baseCmd = raw.split(' ').slice(0,2).join(' ');
+  const baseCmd1 = raw.split(' ')[0];
+  const fullCmd = raw;
+
+  let cmdToTrack = null;
+  if (lesson) {
+    for (const c of lesson.commands) {
+      if (fullCmd.startsWith(c) || baseCmd.startsWith(c) || baseCmd1 === c.split(' ')[0]) {
+        cmdToTrack = c;
+        break;
+      }
+    }
+  }
+
+  if (cmdToTrack && !state.learnedCmds.has(cmdToTrack)) {
+    state.learnedCmds.add(cmdToTrack);
+    state.totalCmdsRun++;
+    buildCmdList();
+    showToast('🎯 COMMAND LEARNED: ' + cmdToTrack);
+    checkAchievements(raw, cmdToTrack);
+  } else {
+    state.totalCmdsRun++;
+    if (state.totalCmdsRun === 1) checkAchievements(raw, 'any');
+  }
+
+  input.value = '';
+  output.scrollTop = output.scrollHeight;
+  spawnParticles(input);
+}
+
+function getGenericResponse(cmd) {
+  if (cmd.startsWith('git ')) {
+    return [
+      `Running: ${cmd}`,
+      '✓ Command executed! Great practice.',
+      '→ Check the syntax block above for options.',
+    ];
+  }
+  if (cmd === 'ls' || cmd === 'dir') return ['index.html', 'style.css', 'app.js', '.gitignore'];
+  if (cmd === 'pwd') return ['/Users/student/my-awesome-project'];
+  if (cmd === 'clear') {
+    setTimeout(() => {
+      const id = document.querySelectorAll('.terminal-input').length > 0 ? 
+        [...document.querySelectorAll('.terminal-input')].find(i => i.value === '' && document.activeElement === i)?.id?.replace('tin-', '') : null;
+    }, 50);
+    return ['✓ Terminal cleared! (Simulated)'];
+  }
+  return [`Command not recognized: ${cmd}`, '→ Try a git command from the syntax block above!'];
+}
+
+function revealHint(id) {
+  const el = document.getElementById('hint-' + id);
+  const lesson = LESSONS.find(l => l.id === id);
+  if (el && lesson) {
+    el.textContent = '💡 Hint: ' + lesson.challengeHint;
+    el.classList.add('revealed');
+  }
+}
+
+function completeLesson(id) {
+  if (state.completedLessons.has(id)) return;
+  const lesson = LESSONS.find(l => l.id === id);
+  if (!lesson) return;
+
+  state.completedLessons.add(id);
+  addXP(lesson.xp);
+
+  const btn = document.getElementById('cbtn-' + id);
+  if (btn) { btn.textContent = '✓ LESSON COMPLETE!'; btn.disabled = true; }
+
+  const card = document.getElementById('lesson-' + id);
+  if (card) card.classList.add('done-lesson');
+
+  // Add ✓ to header
+  const meta = card?.querySelector('.lesson-meta');
+  if (meta) {
+    const existing = card.querySelector('.lesson-done-mark');
+    if (!existing) {
+      const mark = document.createElement('div');
+      mark.className = 'lesson-done-mark';
+      mark.textContent = '✓';
+      card.querySelector('.lesson-header').appendChild(mark);
+    }
+  }
+
+  showToast('🎉 +' + lesson.xp + ' XP! Lesson Complete!');
+  checkAchievements('complete', id);
+
+  if (state.completedLessons.size === LESSONS.length) {
+    setTimeout(() => { checkAchievements('all_done', ''); }, 500);
+  }
+
+  updateProgress();
+}
+
+function addXP(amount) {
+  state.xp += amount;
+  const oldLevel = state.level;
+
+  // Check level up
+  for (let i = LEVELS.length - 1; i >= 0; i--) {
+    if (state.xp >= LEVELS[i].xpNeeded) {
+      state.level = LEVELS[i].level;
+      break;
+    }
+  }
+
+  if (state.level > oldLevel) {
+    const lvl = LEVELS[state.level - 1];
+    setTimeout(() => showLevelUp(lvl), 600);
+  }
+
+  updateHUD();
+}
+
+function updateHUD() {
+  const curLvl = LEVELS[state.level - 1];
+  const nextLvl = LEVELS[state.level] || null;
+  const xpInLevel = nextLvl ? state.xp - curLvl.xpNeeded : curLvl.xpNeeded;
+  const xpNeeded = nextLvl ? nextLvl.xpNeeded - curLvl.xpNeeded : curLvl.xpNeeded;
+  const pct = nextLvl ? Math.min(100, (xpInLevel / xpNeeded) * 100) : 100;
+
+  document.getElementById('hud-level').textContent = state.level;
+  document.getElementById('hud-xp').textContent = state.xp;
+  document.getElementById('hud-xp-max').textContent = nextLvl ? nextLvl.xpNeeded : '∞';
+  document.getElementById('xp-bar').style.width = pct + '%';
+  document.getElementById('hud-cmds').textContent = state.learnedCmds.size;
+  document.getElementById('level-badge').textContent = curLvl.title;
+  document.getElementById('level-badge').style.background = `linear-gradient(135deg, ${curLvl.color}66, ${curLvl.color}33)`;
+  document.getElementById('level-badge').style.border = `1px solid ${curLvl.color}55`;
+  document.getElementById('level-badge').style.color = curLvl.color;
+}
+
+function updateProgress() {
+  const pct = (state.completedLessons.size / LESSONS.length) * 100;
+  document.getElementById('progress-top').style.width = pct + '%';
+}
+
+function checkAchievements(cmd, extra) {
+  ACHIEVEMENTS.forEach(a => {
+    if (state.unlockedAchievements.has(a.id)) return;
+    let unlock = false;
+
+    if (a.trigger === 'any_cmd' && cmd) unlock = true;
+    else if (cmd.includes(a.trigger)) unlock = true;
+    else if (a.trigger === '5_cmds' && state.learnedCmds.size >= 5) unlock = true;
+    else if (a.trigger === 'all_done' && state.completedLessons.size === LESSONS.length) unlock = true;
+
+    if (unlock) {
+      state.unlockedAchievements.add(a.id);
+      const el = document.getElementById('ach-' + a.id);
+      if (el) el.classList.add('unlocked');
+      setTimeout(() => showToast('🏆 ACHIEVEMENT: ' + a.name + ' — ' + a.icon), 1000);
+    }
+  });
+}
+
+// ============================================================
+//  LEVEL UP MODAL
+// ============================================================
+function showLevelUp(lvl) {
+  const emojis = ['🚀','⚡','🔥','💎','👑','🌟'];
+  document.getElementById('lu-emoji').textContent = emojis[lvl.level - 2] || '🎉';
+  document.getElementById('lu-title').textContent = 'LEVEL UP!';
+  document.getElementById('lu-msg').innerHTML = `You've reached <strong style="color:${lvl.color}">${lvl.title}</strong>!<br>Keep going, Git warrior!`;
+  document.getElementById('levelup-modal').classList.add('show');
+}
+
+function closeLevelUp() {
+  document.getElementById('levelup-modal').classList.remove('show');
+}
+
+// ============================================================
+//  TOAST
+// ============================================================
+let toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ============================================================
+//  PARTICLES
+// ============================================================
+function spawnParticles(el) {
+  const rect = el.getBoundingClientRect();
+  const colors = ['#39ff14','#00f5ff','#ff006e','#ffe600','#bf5fff'];
+  for (let i = 0; i < 12; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 8 + 4;
+    const angle = (Math.random() * 360) * (Math.PI / 180);
+    const dist = Math.random() * 60 + 30;
+    p.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${rect.left + rect.width/2}px;
+      top:${rect.top}px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      --tx:${Math.cos(angle)*dist}px;
+      --ty:${Math.sin(angle)*dist - 40}px;
+    `;
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 1000);
+  }
+}
+
+// ============================================================
+//  UTILS
+// ============================================================
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ============================================================
+//  INIT
+// ============================================================
+buildStars();
+buildUI();
+updateHUD();
+updateProgress();
+
+// Open first lesson by default
+setTimeout(() => toggleLesson('setup'), 300);
+</script>
+</body>
+</html>

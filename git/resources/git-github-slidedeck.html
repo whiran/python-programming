@@ -1,0 +1,1518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Git & GitHub for Beginners</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #00d4aa;
+    --secondary: #00a8ff;
+    --accent: #ff6b6b;
+    --success: #51cf66;
+    --warning: #ffd43b;
+    --dark1: #0a0e27;
+    --dark2: #1a1f3a;
+    --dark3: #252b4a;
+    --code-bg: #0d1117;
+    --glass: rgba(255,255,255,0.05);
+    --glass-border: rgba(255,255,255,0.1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--dark1); }
+  ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 2px; }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--dark1);
+    color: #e8eaf6;
+    overflow: hidden;
+    height: 100vh;
+    user-select: none;
+  }
+
+  /* CIRCUIT BACKGROUND */
+  .circuit-bg {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .circuit-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(135deg, var(--dark1) 0%, #0d1230 50%, var(--dark1) 100%);
+  }
+
+  .grid-overlay {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,170,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,170,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Animated orbs */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.15;
+    pointer-events: none;
+    z-index: 0;
+    animation: orbFloat 8s ease-in-out infinite;
+  }
+  .orb1 { width: 400px; height: 400px; background: var(--primary); top: -100px; right: -100px; animation-delay: 0s; }
+  .orb2 { width: 300px; height: 300px; background: var(--secondary); bottom: -80px; left: -80px; animation-delay: 3s; }
+  .orb3 { width: 200px; height: 200px; background: var(--accent); top: 50%; left: 50%; animation-delay: 6s; }
+
+  @keyframes orbFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(20px, -20px) scale(1.05); }
+  }
+
+  /* SVG circuit lines */
+  .circuit-svg {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.12;
+  }
+
+  /* SLIDES CONTAINER */
+  #slides-container {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .slide {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 40px;
+    opacity: 0;
+    transform: translateY(30px) scale(0.97);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+    pointer-events: none;
+    overflow-y: auto;
+  }
+
+  .slide.active {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: all;
+  }
+
+  .slide.exit {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.97);
+  }
+
+  .slide-inner {
+    width: 100%;
+    max-width: 1100px;
+    animation: slideIn 0.7s ease forwards;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* TYPOGRAPHY */
+  .slide-title {
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+    animation: titleBlur 0.8s ease forwards;
+  }
+
+  @keyframes titleBlur {
+    from { filter: blur(8px); opacity: 0; }
+    to { filter: blur(0); opacity: 1; }
+  }
+
+  .slide-subtitle {
+    font-size: clamp(0.9rem, 1.8vw, 1.2rem);
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 30px;
+    font-weight: 300;
+  }
+
+  /* GLASSMORPHISM CARD */
+  .glass-card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    padding: 24px;
+    transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+  }
+
+  .glass-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(0,212,170,0.15);
+    border-color: rgba(0,212,170,0.3);
+  }
+
+  /* CODE BLOCKS */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid rgba(0,212,170,0.2);
+    border-radius: 12px;
+    padding: 20px;
+    font-family: 'Fira Code', monospace;
+    font-size: clamp(0.7rem, 1.3vw, 0.9rem);
+    line-height: 1.8;
+    position: relative;
+    overflow: hidden;
+    animation: codeReveal 0.8s ease forwards;
+  }
+
+  .code-block::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+    animation: borderGlow 2s linear infinite;
+    background-size: 200% 100%;
+  }
+
+  @keyframes borderGlow {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 200% 0%; }
+  }
+
+  @keyframes codeReveal {
+    from { transform: scale(0.96); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .code-block .cmd { color: var(--primary); }
+  .code-block .flag { color: var(--warning); }
+  .code-block .str { color: var(--success); }
+  .code-block .comment { color: rgba(255,255,255,0.35); font-style: italic; }
+  .code-block .keyword { color: var(--accent); }
+
+  /* GRID LAYOUTS */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+  @media (max-width: 768px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .slide { padding: 16px 20px; }
+  }
+
+  /* BADGES */
+  .badge {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    animation: badgePop 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  }
+
+  @keyframes badgePop {
+    from { transform: rotate(-3deg) scale(0.5); opacity: 0; }
+    to { transform: rotate(0) scale(1); opacity: 1; }
+  }
+
+  .badge-primary { background: rgba(0,212,170,0.15); color: var(--primary); border: 1px solid rgba(0,212,170,0.3); }
+  .badge-secondary { background: rgba(0,168,255,0.15); color: var(--secondary); border: 1px solid rgba(0,168,255,0.3); }
+  .badge-accent { background: rgba(255,107,107,0.15); color: var(--accent); border: 1px solid rgba(255,107,107,0.3); }
+  .badge-success { background: rgba(81,207,102,0.15); color: var(--success); border: 1px solid rgba(81,207,102,0.3); }
+  .badge-warning { background: rgba(255,212,59,0.15); color: var(--warning); border: 1px solid rgba(255,212,59,0.3); }
+
+  /* HIGHLIGHT BOXES */
+  .highlight-box {
+    border-left: 3px solid var(--primary);
+    background: rgba(0,212,170,0.05);
+    border-radius: 0 12px 12px 0;
+    padding: 14px 18px;
+    margin: 10px 0;
+  }
+
+  .highlight-box.warning { border-color: var(--warning); background: rgba(255,212,59,0.05); }
+  .highlight-box.success { border-color: var(--success); background: rgba(81,207,102,0.05); }
+  .highlight-box.accent { border-color: var(--accent); background: rgba(255,107,107,0.05); }
+  .highlight-box.secondary { border-color: var(--secondary); background: rgba(0,168,255,0.05); }
+
+  /* STAGGERED LIST */
+  .stagger-list { list-style: none; }
+  .stagger-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    opacity: 0;
+    transform: translateX(-20px);
+    animation: staggerIn 0.5s ease forwards;
+    font-size: clamp(0.8rem, 1.4vw, 0.95rem);
+    line-height: 1.6;
+  }
+
+  .stagger-list li:nth-child(1) { animation-delay: 0.1s; }
+  .stagger-list li:nth-child(2) { animation-delay: 0.2s; }
+  .stagger-list li:nth-child(3) { animation-delay: 0.3s; }
+  .stagger-list li:nth-child(4) { animation-delay: 0.4s; }
+  .stagger-list li:nth-child(5) { animation-delay: 0.5s; }
+  .stagger-list li:nth-child(6) { animation-delay: 0.6s; }
+
+  @keyframes staggerIn {
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--primary);
+    flex-shrink: 0;
+    margin-top: 7px;
+  }
+
+  .dot.blue { background: var(--secondary); }
+  .dot.red { background: var(--accent); }
+  .dot.green { background: var(--success); }
+  .dot.yellow { background: var(--warning); }
+
+  /* CONCEPT CARD */
+  .concept-card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: default;
+  }
+
+  .concept-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 15px 40px rgba(0,212,170,0.2);
+    border-color: var(--primary);
+  }
+
+  .concept-card .icon {
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+    display: block;
+    animation: iconFloat 3s ease-in-out infinite;
+  }
+
+  @keyframes iconFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  .concept-card h3 { font-size: 1rem; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+  .concept-card p { font-size: 0.8rem; color: rgba(255,255,255,0.6); line-height: 1.6; }
+
+  /* DIAGRAM */
+  .diagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 20px;
+    border: 1px dashed rgba(0,212,170,0.3);
+    border-radius: 16px;
+    background: rgba(0,212,170,0.02);
+  }
+
+  .diagram-box {
+    background: var(--dark3);
+    border: 1px solid rgba(0,212,170,0.25);
+    border-radius: 10px;
+    padding: 12px 18px;
+    text-align: center;
+    min-width: 120px;
+  }
+
+  .diagram-box .label { font-size: 0.7rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.05em; }
+  .diagram-box .name { font-size: 0.9rem; font-weight: 600; color: var(--primary); }
+
+  .arrow {
+    font-size: 1.5rem;
+    color: var(--secondary);
+    animation: arrowBounce 1s ease-in-out infinite;
+  }
+
+  @keyframes arrowBounce {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(4px); }
+  }
+
+  /* NAVIGATION */
+  #nav {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    z-index: 100;
+    background: rgba(10,14,39,0.8);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 50px;
+    padding: 10px 20px;
+  }
+
+  .nav-btn {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    color: #fff;
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .nav-btn:hover { background: var(--primary); border-color: var(--primary); color: var(--dark1); }
+
+  #indicators {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .indicator {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .indicator.active {
+    width: 20px;
+    border-radius: 3px;
+    background: var(--primary);
+  }
+
+  #slide-counter {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.4);
+    font-family: 'Fira Code', monospace;
+    min-width: 45px;
+    text-align: center;
+  }
+
+  /* TITLE SLIDE */
+  .title-slide-content {
+    text-align: center;
+  }
+
+  .title-main {
+    font-size: clamp(2.5rem, 7vw, 5rem);
+    font-weight: 900;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #fff 0%, var(--primary) 50%, var(--secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+    animation: titleBlur 1s ease forwards;
+  }
+
+  .title-amp {
+    background: linear-gradient(135deg, var(--accent), var(--warning));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .instructor-card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 24px 36px;
+    display: inline-block;
+    margin-top: 30px;
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .instructor-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+  }
+
+  .instructor-name {
+    font-size: clamp(1rem, 2.5vw, 1.4rem);
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+
+  .instructor-creds {
+    font-size: clamp(0.65rem, 1.2vw, 0.82rem);
+    color: rgba(255,255,255,0.5);
+    line-height: 1.7;
+  }
+
+  .pulse-ring {
+    position: absolute;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,212,170,0.1);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulseRing 3s ease-in-out infinite;
+  }
+
+  .pulse-ring:nth-child(2) { animation-delay: 1s; width: 500px; height: 500px; }
+  .pulse-ring:nth-child(3) { animation-delay: 2s; width: 700px; height: 700px; }
+
+  @keyframes pulseRing {
+    0% { opacity: 0.3; transform: translate(-50%, -50%) scale(0.9); }
+    50% { opacity: 0.1; transform: translate(-50%, -50%) scale(1.05); }
+    100% { opacity: 0.3; transform: translate(-50%, -50%) scale(0.9); }
+  }
+
+  /* PROGRESS BAR */
+  #progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    z-index: 200;
+    transition: width 0.5s ease;
+    box-shadow: 0 0 10px var(--primary);
+  }
+
+  /* KEYBOARD HINT */
+  #key-hint {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.25);
+    font-family: 'Fira Code', monospace;
+    z-index: 100;
+    text-align: right;
+    line-height: 1.8;
+  }
+
+  /* SECTION HEADER */
+  .section-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 6px;
+  }
+
+  /* COMPARISON */
+  .compare-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .compare-item {
+    background: var(--glass);
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid var(--glass-border);
+  }
+
+  .compare-item.git { border-top: 2px solid var(--primary); }
+  .compare-item.github { border-top: 2px solid var(--secondary); }
+
+  /* WORKFLOW STEPS */
+  .workflow-step {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 14px;
+    border-radius: 12px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    margin-bottom: 10px;
+    opacity: 0;
+    animation: staggerIn 0.5s ease forwards;
+  }
+
+  .step-num {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    color: var(--dark1);
+  }
+
+  /* ANALOGY BOX */
+  .analogy {
+    background: rgba(255,212,59,0.06);
+    border: 1px dashed rgba(255,212,59,0.3);
+    border-radius: 12px;
+    padding: 14px 18px;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.7);
+  }
+
+  .analogy strong { color: var(--warning); }
+
+  /* BRANCH DIAGRAM */
+  .branch-diagram {
+    position: relative;
+    padding: 20px;
+    overflow: hidden;
+  }
+
+  .branch-line {
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), rgba(0,212,170,0.2));
+    border-radius: 2px;
+    position: relative;
+    margin: 12px 0;
+  }
+
+  .branch-line.feature {
+    background: linear-gradient(90deg, var(--secondary), rgba(0,168,255,0.2));
+    margin-left: 60px;
+    width: calc(100% - 60px);
+  }
+
+  .commit-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--primary);
+    border: 2px solid var(--dark1);
+    display: inline-block;
+    position: absolute;
+    top: -5px;
+    box-shadow: 0 0 10px var(--primary);
+  }
+
+  .commit-dot.feature-dot { background: var(--secondary); box-shadow: 0 0 10px var(--secondary); }
+
+  /* COMMAND PILL */
+  .cmd-pill {
+    display: inline-block;
+    background: rgba(0,212,170,0.1);
+    border: 1px solid rgba(0,212,170,0.25);
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.82rem;
+    color: var(--primary);
+  }
+
+  /* SLIDE SCROLLING */
+  .slide { scrollbar-width: thin; }
+
+  /* RESPONSIVE ADJUSTMENTS */
+  @media (max-width: 600px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .compare-row { grid-template-columns: 1fr; }
+    #nav { bottom: 16px; padding: 8px 16px; }
+    .title-main { font-size: 2.8rem; }
+  }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th { background: rgba(0,212,170,0.1); color: var(--primary); padding: 10px 14px; text-align: left; font-weight: 600; }
+  td { padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.05); color: rgba(255,255,255,0.75); }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+</style>
+</head>
+<body>
+
+<!-- Background Elements -->
+<div class="circuit-bg"></div>
+<div class="grid-overlay"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<svg class="circuit-svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+  <path d="M0 200 H400 V100 H800 V300 H1200 V150 H1440" stroke="#00d4aa" stroke-width="1" fill="none" stroke-dasharray="4 8"/>
+  <path d="M0 600 H200 V500 H600 V700 H1000 V450 H1440" stroke="#00a8ff" stroke-width="1" fill="none" stroke-dasharray="4 8"/>
+  <path d="M200 0 V250 H400 V150 H700 V400 H900 V250 H1100 V500" stroke="#00d4aa" stroke-width="0.5" fill="none" stroke-dasharray="3 6"/>
+  <circle cx="400" cy="100" r="4" fill="#00d4aa" opacity="0.5"/>
+  <circle cx="800" cy="300" r="4" fill="#00d4aa" opacity="0.5"/>
+  <circle cx="200" cy="500" r="4" fill="#00a8ff" opacity="0.5"/>
+  <circle cx="600" cy="700" r="4" fill="#00a8ff" opacity="0.5"/>
+  <circle cx="700" cy="400" r="4" fill="#00d4aa" opacity="0.3"/>
+</svg>
+
+<div id="progress-bar"></div>
+<div id="key-hint">← → Arrow Keys<br>Space / Swipe</div>
+
+<div id="slides-container">
+
+  <!-- SLIDE 1: TITLE -->
+  <div class="slide active" id="slide-0">
+    <div class="slide-inner title-slide-content">
+      <div class="pulse-ring"></div>
+      <div class="pulse-ring"></div>
+      <div class="pulse-ring"></div>
+
+      <div style="margin-bottom:16px">
+        <span class="badge badge-primary" style="animation-delay:0.1s">Version Control</span>&nbsp;
+        <span class="badge badge-secondary" style="animation-delay:0.3s">Beginner Friendly</span>&nbsp;
+        <span class="badge badge-success" style="animation-delay:0.5s">Hands-On</span>
+      </div>
+
+      <div class="title-main">Git <span class="title-amp">&</span><br>GitHub</div>
+      <div style="font-size:clamp(1rem,2vw,1.4rem); color:rgba(255,255,255,0.5); font-weight:300; margin-bottom:30px;">
+        A Complete Beginner's Guide
+      </div>
+
+      <div class="instructor-card">
+        <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:0.15em; color:var(--primary); margin-bottom:10px; font-weight:600;">Your Instructor</div>
+        <div class="instructor-name">Indika Hiran Wijesinghe</div>
+        <div class="instructor-creds">
+          MSc (Big Data Analytics) &nbsp;•&nbsp; MSc in MIT &nbsp;•&nbsp; BSc Hons<br>
+          BCS &nbsp;•&nbsp; CSSL &nbsp;•&nbsp; SCJP &nbsp;•&nbsp; SCMAD &nbsp;•&nbsp; SCBCD
+        </div>
+      </div>
+
+      <div style="margin-top:30px; display:flex; justify-content:center; gap:24px; flex-wrap:wrap;">
+        <div style="text-align:center;">
+          <div style="font-size:1.8rem; font-weight:800; color:var(--primary);">8</div>
+          <div style="font-size:0.72rem; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.05em;">Core Concepts</div>
+        </div>
+        <div style="width:1px; background:rgba(255,255,255,0.1);"></div>
+        <div style="text-align:center;">
+          <div style="font-size:1.8rem; font-weight:800; color:var(--secondary);">15+</div>
+          <div style="font-size:0.72rem; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.05em;">Git Commands</div>
+        </div>
+        <div style="width:1px; background:rgba(255,255,255,0.1);"></div>
+        <div style="text-align:center;">
+          <div style="font-size:1.8rem; font-weight:800; color:var(--accent);">∞</div>
+          <div style="font-size:0.72rem; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.05em;">Real-World Use</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: WHY GIT? -->
+  <div class="slide" id="slide-1">
+    <div class="slide-inner">
+      <div class="section-label">The Problem</div>
+      <div class="slide-title">Why Do We Need Git?</div>
+      <div class="slide-subtitle">The client problem that changes everything</div>
+
+      <div class="grid-2" style="margin-bottom:20px;">
+        <div class="glass-card">
+          <div style="font-size:2rem; margin-bottom:10px;">😰</div>
+          <h3 style="color:var(--accent); font-weight:700; margin-bottom:10px;">Without Git</h3>
+          <ul class="stagger-list">
+            <li><div class="dot red"></div>You write code for a client — looks perfect!</li>
+            <li><div class="dot red"></div>Client asks for changes a month later</li>
+            <li><div class="dot red"></div>You overwrite the original code</li>
+            <li><div class="dot red"></div>Client says "Old version was better!"</li>
+            <li><div class="dot red"></div><strong style="color:var(--accent);">You're in trouble — it's gone forever.</strong></li>
+          </ul>
+        </div>
+        <div class="glass-card">
+          <div style="font-size:2rem; margin-bottom:10px;">😌</div>
+          <h3 style="color:var(--success); font-weight:700; margin-bottom:10px;">With Git</h3>
+          <ul class="stagger-list">
+            <li><div class="dot green"></div>Every version of your files is stored safely</li>
+            <li><div class="dot green"></div>Go back to any previous state instantly</li>
+            <li><div class="dot green"></div>See exactly what changed and when</li>
+            <li><div class="dot green"></div>Client wants old version? No problem!</li>
+            <li><div class="dot green"></div><strong style="color:var(--success);">Full control over your project history.</strong></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="highlight-box" style="display:flex; align-items:center; gap:12px;">
+        <span style="font-size:1.5rem;">💡</span>
+        <div>
+          <strong style="color:var(--primary);">Git is a Version Control System</strong> — it keeps every version of your files safely stored so you can go back to any previous state without losing anything.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: GIT vs GITHUB -->
+  <div class="slide" id="slide-2">
+    <div class="slide-inner">
+      <div class="section-label">Core Concepts</div>
+      <div class="slide-title">Git vs GitHub</div>
+      <div class="slide-subtitle">Two different things — let's clear the confusion</div>
+
+      <div class="compare-row" style="margin-bottom:20px;">
+        <div class="compare-item git glass-card">
+          <div style="font-size:2.5rem; margin-bottom:10px; text-align:center;">☕</div>
+          <div style="text-align:center; margin-bottom:14px;">
+            <span class="badge badge-primary">GIT</span>
+          </div>
+          <ul class="stagger-list">
+            <li><div class="dot"></div>Runs on your <strong>local computer</strong></li>
+            <li><div class="dot"></div>Tracks <strong>every change</strong> you make</li>
+            <li><div class="dot"></div>Works completely <strong>offline</strong></li>
+            <li><div class="dot"></div>The actual <strong>version control tool</strong></li>
+          </ul>
+        </div>
+        <div class="compare-item github glass-card">
+          <div style="font-size:2.5rem; margin-bottom:10px; text-align:center;">🏪</div>
+          <div style="text-align:center; margin-bottom:14px;">
+            <span class="badge badge-secondary">GITHUB</span>
+          </div>
+          <ul class="stagger-list">
+            <li><div class="dot blue"></div><strong>Cloud-based</strong> central hub</li>
+            <li><div class="dot blue"></div>Your team's project lives <strong>online</strong></li>
+            <li><div class="dot blue"></div>Upload, view, edit, and <strong>share</strong> updates</li>
+            <li><div class="dot blue"></div>The <strong>platform</strong> that hosts Git projects</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="analogy">
+        <span style="font-size:1.2rem;">☕</span>&nbsp;&nbsp;<strong>The Coffee Analogy:</strong>&nbsp;&nbsp;
+        Git is like the <strong>coffee</strong> — the actual thing you need. GitHub is like the <strong>coffee shop</strong> — the place where that coffee is served to the world. You can have coffee without a coffee shop, but the shop makes it social and accessible!
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: SETUP -->
+  <div class="slide" id="slide-3">
+    <div class="slide-inner">
+      <div class="section-label">Step 1 of 8</div>
+      <div class="slide-title">Setting Up Your Identity</div>
+      <div class="slide-subtitle">Before your first commit, tell Git who you are</div>
+
+      <div class="grid-2" style="margin-bottom:16px; align-items:start;">
+        <div>
+          <div class="highlight-box" style="margin-bottom:14px;">
+            <strong style="color:var(--primary);">Why is this needed?</strong><br>
+            <span style="font-size:0.85rem; color:rgba(255,255,255,0.65);">Every commit you make is stamped with your name and email — so your team knows who made each change.</span>
+          </div>
+          <ul class="stagger-list">
+            <li><div class="dot"></div>This is a <strong>one-time setup</strong> — <span class="cmd-pill">--global</span> applies to all projects</li>
+            <li><div class="dot"></div>Create a folder and initialize Git inside it</li>
+            <li><div class="dot"></div>Alternatively, <strong>clone</strong> an existing project from GitHub</li>
+          </ul>
+        </div>
+        <div>
+          <div class="code-block">
+<span class="comment"># 1. Set your name globally</span>
+<span class="cmd">git config</span> <span class="flag">--global</span> user.name <span class="str">"Your Name"</span>
+
+<span class="comment"># 2. Set your email globally</span>
+<span class="cmd">git config</span> <span class="flag">--global</span> user.email <span class="str">"you@email.com"</span>
+
+<span class="comment"># 3. Create a project folder</span>
+<span class="cmd">mkdir</span> git-project
+<span class="cmd">cd</span> git-project
+
+<span class="comment"># 4a. Initialize a new repo</span>
+<span class="cmd">git init</span>
+
+<span class="comment"># OR 4b. Clone an existing repo</span>
+<span class="cmd">git clone</span> &lt;url&gt;
+          </div>
+        </div>
+      </div>
+
+      <div class="diagram">
+        <div class="diagram-box">
+          <div class="label">Your Computer</div>
+          <div class="name">📁 git-project/</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="diagram-box">
+          <div class="label">After git init</div>
+          <div class="name">📂 .git/ folder</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="diagram-box">
+          <div class="label">Result</div>
+          <div class="name">🎯 Repo Created!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: STAGING & COMMITTING -->
+  <div class="slide" id="slide-4">
+    <div class="slide-inner">
+      <div class="section-label">Step 2 of 8</div>
+      <div class="slide-title">Staging & Committing</div>
+      <div class="slide-subtitle">The two-step save process — like checking yourself in a mirror</div>
+
+      <div class="grid-2" style="margin-bottom:16px; align-items:start;">
+        <div>
+          <div class="diagram" style="flex-direction:column; align-items:flex-start; margin-bottom:14px;">
+            <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.35); margin-bottom:14px;">Flow of Changes</div>
+            <div style="display:flex; align-items:center; gap:10px; width:100%;">
+              <div class="diagram-box" style="flex:1; text-align:center;">
+                <div class="label">Working Dir</div>
+                <div class="name">✏️ Editing</div>
+              </div>
+              <div class="arrow">→</div>
+              <div class="diagram-box" style="flex:1; text-align:center;">
+                <div class="label">Staging Area</div>
+                <div class="name">🪞 Review</div>
+              </div>
+              <div class="arrow">→</div>
+              <div class="diagram-box" style="flex:1; text-align:center;">
+                <div class="label">Repository</div>
+                <div class="name">💾 Saved</div>
+              </div>
+            </div>
+          </div>
+          <div class="analogy" style="font-size:0.82rem;">
+            <strong>Party Analogy:</strong> Staging is like <strong>checking yourself in a mirror</strong> before leaving for the party. Committing is <strong>"leaving for the party"</strong> — you're confident the work is correct!
+          </div>
+        </div>
+        <div>
+          <div class="code-block">
+<span class="comment"># Check what's changed</span>
+<span class="cmd">git status</span>
+
+<span class="comment"># Stage ALL changes (add to mirror check)</span>
+<span class="cmd">git add</span> <span class="flag">.</span>
+<span class="comment"># OR stage a specific file</span>
+<span class="cmd">git add</span> index.html
+
+<span class="comment"># Commit with a message</span>
+<span class="cmd">git commit</span> <span class="flag">-m</span> <span class="str">"Added initial index.html"</span>
+
+<span class="comment"># View your commit history</span>
+<span class="cmd">git log</span> <span class="flag">--oneline</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="highlight-box">
+          <strong style="color:var(--primary); font-size:0.85rem;">git status</strong><br>
+          <span style="font-size:0.78rem; color:rgba(255,255,255,0.55);">Shows what's modified, staged, or untracked</span>
+        </div>
+        <div class="highlight-box warning">
+          <strong style="color:var(--warning); font-size:0.85rem;">git add .</strong><br>
+          <span style="font-size:0.78rem; color:rgba(255,255,255,0.55);">Stages all changes — moves to the "mirror" area</span>
+        </div>
+        <div class="highlight-box success">
+          <strong style="color:var(--success); font-size:0.85rem;">git commit -m ""</strong><br>
+          <span style="font-size:0.78rem; color:rgba(255,255,255,0.55);">Permanently saves a snapshot with a message</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: BRANCHING -->
+  <div class="slide" id="slide-5">
+    <div class="slide-inner">
+      <div class="section-label">Step 3 of 8</div>
+      <div class="slide-title">Branching — Experiment Safely</div>
+      <div class="slide-subtitle">Work on risky features without breaking the main code</div>
+
+      <div class="grid-2" style="align-items:start; margin-bottom:16px;">
+        <div>
+          <div class="analogy" style="margin-bottom:14px;">
+            🍳 <strong>Restaurant Kitchen Analogy:</strong><br>
+            The <strong>main</strong> branch is the restaurant's main kitchen. A new branch is a separate <strong>"taste kitchen"</strong> where you safely experiment with new recipes without disrupting service.
+          </div>
+          <ul class="stagger-list">
+            <li><div class="dot"></div>A branch is an <strong>identical copy</strong> of your code</li>
+            <li><div class="dot blue"></div>Changes on a branch <strong>don't affect main</strong></li>
+            <li><div class="dot green"></div>Work freely — commit as much as you want</li>
+            <li><div class="dot yellow"></div>Merge back when the feature is complete</li>
+          </ul>
+        </div>
+        <div>
+          <div class="code-block">
+<span class="comment"># Create a new branch</span>
+<span class="cmd">git branch</span> dark-mode
+
+<span class="comment"># Switch to the new branch</span>
+<span class="cmd">git checkout</span> dark-mode
+
+<span class="comment"># Shortcut: create AND switch</span>
+<span class="cmd">git checkout</span> <span class="flag">-b</span> dark-mode
+
+<span class="comment"># See all branches (* = current)</span>
+<span class="cmd">git branch</span>
+
+<span class="comment"># Make changes, then commit normally</span>
+<span class="cmd">git add</span> <span class="flag">.</span>
+<span class="cmd">git commit</span> <span class="flag">-m</span> <span class="str">"Added dark mode UI"</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-card" style="padding:20px;">
+        <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.35); margin-bottom:14px;">Visual Branch Diagram</div>
+        <div style="position:relative; padding:10px 0;">
+          <div style="font-size:0.72rem; color:rgba(255,255,255,0.4); margin-bottom:4px;">main branch</div>
+          <div class="branch-line" style="position:relative;">
+            <div class="commit-dot" style="left:0;"></div>
+            <div class="commit-dot" style="left:80px;"></div>
+            <div class="commit-dot" style="left:160px;"></div>
+            <div class="commit-dot" style="left:280px; background:var(--success); box-shadow:0 0 10px var(--success);"></div>
+          </div>
+          <div style="font-size:0.72rem; color:rgba(0,168,255,0.6); margin-top:14px; margin-bottom:4px;">dark-mode branch</div>
+          <div class="branch-line feature" style="position:relative; width:200px;">
+            <div class="commit-dot feature-dot" style="left:0;"></div>
+            <div class="commit-dot feature-dot" style="left:80px;"></div>
+            <div class="commit-dot feature-dot" style="left:160px;"></div>
+          </div>
+          <div style="font-size:0.72rem; color:rgba(81,207,102,0.6); margin-top:8px;">↑ Eventually merged back to main</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: STASHING -->
+  <div class="slide" id="slide-6">
+    <div class="slide-inner">
+      <div class="section-label">Step 4 of 8</div>
+      <div class="slide-title">Stashing — Save for Later</div>
+      <div class="slide-subtitle">Interrupted? Stash your work and come back to it</div>
+
+      <div class="grid-2" style="align-items:start; margin-bottom:16px;">
+        <div>
+          <div class="analogy" style="margin-bottom:14px;">
+            🗄️ <strong>Desk Drawer Analogy:</strong><br>
+            Imagine you're in the middle of cooking a new recipe (dark mode feature) but your boss urgently needs you elsewhere. You <strong>stash the ingredients</strong> in a drawer and come back later to continue.
+          </div>
+
+          <div style="margin-top:12px;">
+            <div class="workflow-step" style="animation-delay:0.1s;">
+              <div class="step-num">1</div>
+              <div>
+                <strong style="color:var(--warning);">Problem:</strong> Working on dark-mode but boss needs urgent bug fix on main
+              </div>
+            </div>
+            <div class="workflow-step" style="animation-delay:0.2s;">
+              <div class="step-num">2</div>
+              <div>
+                <strong style="color:var(--primary);">git stash</strong> — saves unfinished work, clears your directory
+              </div>
+            </div>
+            <div class="workflow-step" style="animation-delay:0.3s;">
+              <div class="step-num">3</div>
+              <div>
+                Fix the bug on <strong>main</strong>, then return to dark-mode branch
+              </div>
+            </div>
+            <div class="workflow-step" style="animation-delay:0.4s;">
+              <div class="step-num">4</div>
+              <div>
+                <strong style="color:var(--success);">git stash pop</strong> — brings your work right back!
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="code-block">
+<span class="comment"># You're on dark-mode, work not ready</span>
+<span class="comment"># Boss: "Fix urgent bug on main NOW!"</span>
+
+<span class="comment"># Stash your unfinished work</span>
+<span class="cmd">git stash</span>
+
+<span class="comment"># Switch to main and fix the bug</span>
+<span class="cmd">git checkout</span> main
+<span class="comment"># ... make fixes ...</span>
+<span class="cmd">git add</span> <span class="flag">.</span>
+<span class="cmd">git commit</span> <span class="flag">-m</span> <span class="str">"Fixed urgent bug"</span>
+
+<span class="comment"># Go back to feature branch</span>
+<span class="cmd">git checkout</span> dark-mode
+
+<span class="comment"># Bring your stashed work back!</span>
+<span class="cmd">git stash pop</span>
+
+<span class="comment"># See what's stashed</span>
+<span class="cmd">git stash list</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: MERGING -->
+  <div class="slide" id="slide-7">
+    <div class="slide-inner">
+      <div class="section-label">Step 5 of 8</div>
+      <div class="slide-title">Merging — Combine Your Work</div>
+      <div class="slide-subtitle">Bring completed feature branches back into the main codebase</div>
+
+      <div class="grid-2" style="align-items:start; margin-bottom:16px;">
+        <div>
+          <div class="analogy" style="margin-bottom:14px;">
+            🧩 <strong>Puzzle Analogy:</strong><br>
+            Merging is like combining completed puzzle pieces (feature branch) back into the main picture (main branch) — the result is the complete, final image.
+          </div>
+          <ul class="stagger-list">
+            <li><div class="dot"></div>Always switch to the <strong>target branch</strong> first (usually main)</li>
+            <li><div class="dot green"></div>Then merge the <strong>source branch</strong> into it</li>
+            <li><div class="dot yellow"></div>Git automatically combines non-conflicting changes</li>
+            <li><div class="dot red"></div>If same lines changed — Git signals a <strong>merge conflict</strong> to resolve manually</li>
+          </ul>
+        </div>
+        <div>
+          <div class="code-block">
+<span class="comment"># Feature is done! Time to merge.</span>
+
+<span class="comment"># 1. Switch to the main branch</span>
+<span class="cmd">git checkout</span> main
+
+<span class="comment"># 2. Merge dark-mode INTO main</span>
+<span class="cmd">git merge</span> dark-mode
+
+<span class="comment"># 3. Optional: delete branch after merge</span>
+<span class="cmd">git branch</span> <span class="flag">-d</span> dark-mode
+
+<span class="comment"># If a merge conflict occurs:</span>
+<span class="comment"># Edit the conflicting file manually</span>
+<span class="comment"># Then stage and commit to resolve</span>
+<span class="cmd">git add</span> <span class="flag">.</span>
+<span class="cmd">git commit</span> <span class="flag">-m</span> <span class="str">"Merged dark-mode feature"</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="diagram">
+        <div class="diagram-box">
+          <div class="label">main branch</div>
+          <div class="name" style="color:var(--primary);">commits A, B, C</div>
+        </div>
+        <div style="font-size:1.2rem; color:var(--secondary);">+</div>
+        <div class="diagram-box">
+          <div class="label">dark-mode branch</div>
+          <div class="name" style="color:var(--secondary);">commits D, E, F</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="diagram-box">
+          <div class="label">after merge</div>
+          <div class="name" style="color:var(--success);">A+B+C+D+E+F ✓</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: FIXING MISTAKES -->
+  <div class="slide" id="slide-8">
+    <div class="slide-inner">
+      <div class="section-label">Step 6 of 8</div>
+      <div class="slide-title">Fixing Mistakes</div>
+      <div class="slide-subtitle">Git gives you total control to undo and recover</div>
+
+      <div class="grid-2" style="align-items:start; margin-bottom:16px;">
+        <div>
+          <div class="glass-card" style="margin-bottom:14px;">
+            <span class="badge badge-warning" style="margin-bottom:10px;">Before Commit</span>
+            <h3 style="color:var(--primary); font-size:1rem; margin-bottom:8px;">git restore &lt;filename&gt;</h3>
+            <p style="font-size:0.82rem; color:rgba(255,255,255,0.6); line-height:1.7;">
+              Accidentally modified a file but haven't committed yet? This instantly reverts the file to its last committed (safe) state. 
+              Like pressing Ctrl+Z back to the last save point.
+            </p>
+          </div>
+          <div class="glass-card">
+            <span class="badge badge-accent" style="margin-bottom:10px;">After Commit</span>
+            <h3 style="color:var(--accent); font-size:1rem; margin-bottom:8px;">git revert &lt;commit-id&gt;</h3>
+            <p style="font-size:0.82rem; color:rgba(255,255,255,0.6); line-height:1.7;">
+              Realized an older commit introduced a bug? Creates a NEW commit that undoes it — keeping history clean and traceable. Safe to use on shared branches.
+            </p>
+          </div>
+        </div>
+        <div>
+          <div class="code-block">
+<span class="comment"># Scenario 1: Oops! Wrong edit, not committed</span>
+<span class="cmd">git restore</span> index.html
+<span class="comment"># File is back to last committed state ✓</span>
+
+<span class="comment"># Scenario 2: Revert a committed mistake</span>
+<span class="comment"># First, find the bad commit ID</span>
+<span class="cmd">git log</span> <span class="flag">--oneline</span>
+<span class="comment"># abc1234 Added dark mode (this broke things!)</span>
+<span class="comment"># def5678 Fixed the bug</span>
+
+<span class="comment"># Revert the bad commit safely</span>
+<span class="cmd">git revert</span> abc1234
+<span class="comment"># Creates new commit undoing abc1234 ✓</span>
+
+<span class="comment"># DANGER ZONE: Hard reset (rewrites history)</span>
+<span class="cmd">git reset</span> <span class="flag">--hard</span> HEAD~1
+<span class="comment"># ⚠️ Only use on local branches!</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="highlight-box accent">
+        <strong style="color:var(--accent);">⚠️ Key Rule:</strong> Use <span class="cmd-pill">git revert</span> for shared/public branches (safe, adds new commit). Use <span class="cmd-pill">git reset</span> only on your own private branches (destructive, rewrites history).
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 10: GITHUB COLLABORATION -->
+  <div class="slide" id="slide-9">
+    <div class="slide-inner">
+      <div class="section-label">Step 7 of 8</div>
+      <div class="slide-title">Collaborating with GitHub</div>
+      <div class="slide-subtitle">Share your work and sync with your team</div>
+
+      <div class="grid-2" style="align-items:start; margin-bottom:16px;">
+        <div>
+          <div class="diagram" style="flex-direction:column; margin-bottom:14px;">
+            <div style="display:flex; align-items:center; gap:10px; width:100%;">
+              <div class="diagram-box" style="flex:1; text-align:center;">
+                <div class="label">Your Computer</div>
+                <div class="name">💻 Local Repo</div>
+              </div>
+              <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+                <div style="font-size:0.7rem; color:var(--success);">push ↑</div>
+                <div style="font-size:0.7rem; color:var(--secondary);">↓ pull</div>
+              </div>
+              <div class="diagram-box" style="flex:1; text-align:center;">
+                <div class="label">GitHub Cloud</div>
+                <div class="name">☁️ Remote Repo</div>
+              </div>
+            </div>
+          </div>
+
+          <ul class="stagger-list">
+            <li><div class="dot green"></div><strong>push</strong> — upload your commits to GitHub</li>
+            <li><div class="dot blue"></div><strong>fetch</strong> — download changes but don't apply yet</li>
+            <li><div class="dot"></div><strong>pull</strong> — fetch + merge in one command</li>
+            <li><div class="dot yellow"></div><strong>origin</strong> — the default name for your remote repo</li>
+          </ul>
+        </div>
+        <div>
+          <div class="code-block">
+<span class="comment"># Link local repo to GitHub</span>
+<span class="cmd">git remote add</span> origin &lt;repo-url&gt;
+
+<span class="comment"># Upload (push) your commits to GitHub</span>
+<span class="cmd">git push</span> origin main
+
+<span class="comment"># Push a feature branch to GitHub</span>
+<span class="cmd">git push</span> origin dark-mode
+
+<span class="comment"># Download changes (don't merge yet)</span>
+<span class="cmd">git fetch</span>
+
+<span class="comment"># Download AND merge in one command</span>
+<span class="cmd">git pull</span>
+
+<span class="comment"># See your remote connections</span>
+<span class="cmd">git remote</span> <span class="flag">-v</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="highlight-box success">
+          <strong style="color:var(--success); font-size:0.85rem;">git push</strong><br>
+          <span style="font-size:0.78rem; color:rgba(255,255,255,0.55);">Share your local work with the team</span>
+        </div>
+        <div class="highlight-box secondary">
+          <strong style="color:var(--secondary); font-size:0.85rem;">git fetch</strong><br>
+          <span style="font-size:0.78rem; color:rgba(255,255,255,0.55);">Download but review before merging</span>
+        </div>
+        <div class="highlight-box">
+          <strong style="color:var(--primary); font-size:0.85rem;">git pull</strong><br>
+          <span style="font-size:0.78rem; color:rgba(255,255,255,0.55);">Fetch + merge in a single command</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 11: PULL REQUESTS -->
+  <div class="slide" id="slide-10">
+    <div class="slide-inner">
+      <div class="section-label">Step 8 of 8</div>
+      <div class="slide-title">Pull Requests — Code Review</div>
+      <div class="slide-subtitle">The professional way to merge code in a team</div>
+
+      <div class="grid-2" style="align-items:start; margin-bottom:16px;">
+        <div>
+          <div class="analogy" style="margin-bottom:14px;">
+            👮 <strong>Quality Control Analogy:</strong><br>
+            A Pull Request (PR) is like submitting your work to a <strong>quality inspector</strong> before it goes to production. Your team reviews every line before it reaches the main codebase.
+          </div>
+          <ul class="stagger-list">
+            <li><div class="dot"></div>Rarely merge your own branches in real teams</li>
+            <li><div class="dot blue"></div>Push your branch to GitHub, then <strong>open a PR</strong></li>
+            <li><div class="dot green"></div>PR shows <strong>exactly which lines</strong> were added or removed</li>
+            <li><div class="dot yellow"></div>Team reviews, comments, requests changes</li>
+            <li><div class="dot"></div>Once approved, click <strong>"Merge pull request"</strong></li>
+          </ul>
+        </div>
+        <div>
+          <div class="code-block">
+<span class="comment"># 1. Push your feature branch</span>
+<span class="cmd">git push</span> origin dark-mode
+
+<span class="comment"># 2. Go to GitHub.com → your repo
+#    Click "Compare & pull request"
+#    Add a title and description
+#    Click "Create pull request"</span>
+
+<span class="comment"># 3. Team reviews your code on GitHub
+#    They may request changes
+#    Make changes locally, commit &amp; push</span>
+<span class="cmd">git add</span> <span class="flag">.</span>
+<span class="cmd">git commit</span> <span class="flag">-m</span> <span class="str">"Applied review feedback"</span>
+<span class="cmd">git push</span> origin dark-mode
+
+<span class="comment"># 4. Once approved → Merge on GitHub!
+#    Main branch stays stable ✓</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap;">
+          <div style="flex:1; min-width:200px;">
+            <div style="font-size:0.72rem; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.35); margin-bottom:8px;">PR Workflow</div>
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:0.8rem;">
+              <span class="badge badge-secondary">Push Branch</span>
+              <span style="color:rgba(255,255,255,0.3);">→</span>
+              <span class="badge badge-warning">Open PR</span>
+              <span style="color:rgba(255,255,255,0.3);">→</span>
+              <span class="badge badge-accent">Review</span>
+              <span style="color:rgba(255,255,255,0.3);">→</span>
+              <span class="badge badge-success">Merge!</span>
+            </div>
+          </div>
+          <div style="text-align:center; flex-shrink:0;">
+            <div style="font-size:2rem;">🎉</div>
+            <div style="font-size:0.75rem; color:rgba(255,255,255,0.4);">Main stays stable</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 12: CHEAT SHEET -->
+  <div class="slide" id="slide-11">
+    <div class="slide-inner">
+      <div class="section-label">Quick Reference</div>
+      <div class="slide-title">Git Command Cheat Sheet</div>
+      <div class="slide-subtitle">All essential commands in one place</div>
+
+      <div class="grid-2" style="align-items:start;">
+        <div>
+          <table style="margin-bottom:14px;">
+            <tr><th colspan="2" style="background:rgba(0,212,170,0.15); color:var(--primary);">🔧 Setup & Init</th></tr>
+            <tr><td><span class="cmd-pill">git init</span></td><td>Initialize new repo</td></tr>
+            <tr><td><span class="cmd-pill">git clone &lt;url&gt;</span></td><td>Clone from GitHub</td></tr>
+            <tr><td><span class="cmd-pill">git config --global</span></td><td>Set user name/email</td></tr>
+          </table>
+          <table style="margin-bottom:14px;">
+            <tr><th colspan="2" style="background:rgba(255,212,59,0.15); color:var(--warning);">📦 Stage & Commit</th></tr>
+            <tr><td><span class="cmd-pill">git status</span></td><td>Check file states</td></tr>
+            <tr><td><span class="cmd-pill">git add .</span></td><td>Stage all changes</td></tr>
+            <tr><td><span class="cmd-pill">git commit -m ""</span></td><td>Save a snapshot</td></tr>
+            <tr><td><span class="cmd-pill">git log --oneline</span></td><td>View history</td></tr>
+          </table>
+          <table>
+            <tr><th colspan="2" style="background:rgba(255,107,107,0.15); color:var(--accent);">🔁 Undo</th></tr>
+            <tr><td><span class="cmd-pill">git restore &lt;f&gt;</span></td><td>Revert uncommitted</td></tr>
+            <tr><td><span class="cmd-pill">git revert &lt;id&gt;</span></td><td>Safe undo (new commit)</td></tr>
+          </table>
+        </div>
+        <div>
+          <table style="margin-bottom:14px;">
+            <tr><th colspan="2" style="background:rgba(0,168,255,0.15); color:var(--secondary);">🌿 Branches</th></tr>
+            <tr><td><span class="cmd-pill">git branch &lt;name&gt;</span></td><td>Create branch</td></tr>
+            <tr><td><span class="cmd-pill">git checkout &lt;name&gt;</span></td><td>Switch branch</td></tr>
+            <tr><td><span class="cmd-pill">git checkout -b</span></td><td>Create + switch</td></tr>
+            <tr><td><span class="cmd-pill">git merge &lt;name&gt;</span></td><td>Merge branch</td></tr>
+            <tr><td><span class="cmd-pill">git branch -d &lt;name&gt;</span></td><td>Delete branch</td></tr>
+          </table>
+          <table style="margin-bottom:14px;">
+            <tr><th colspan="2" style="background:rgba(81,207,102,0.15); color:var(--success);">☁️ Remote (GitHub)</th></tr>
+            <tr><td><span class="cmd-pill">git push origin</span></td><td>Upload commits</td></tr>
+            <tr><td><span class="cmd-pill">git pull</span></td><td>Fetch + merge</td></tr>
+            <tr><td><span class="cmd-pill">git fetch</span></td><td>Download only</td></tr>
+          </table>
+          <table>
+            <tr><th colspan="2" style="background:rgba(255,212,59,0.15); color:var(--warning);">🗄️ Stash</th></tr>
+            <tr><td><span class="cmd-pill">git stash</span></td><td>Save work temporarily</td></tr>
+            <tr><td><span class="cmd-pill">git stash pop</span></td><td>Restore stashed work</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 13: SUMMARY -->
+  <div class="slide" id="slide-12">
+    <div class="slide-inner" style="text-align:center;">
+      <div class="section-label">Wrap Up</div>
+      <div class="slide-title">You're Now a Git Beginner! 🎉</div>
+      <div class="slide-subtitle">Here's everything we covered in this session</div>
+
+      <div class="grid-3" style="margin-bottom:24px;">
+        <div class="concept-card">
+          <span class="icon">🏗️</span>
+          <h3>Setup</h3>
+          <p>Config identity, init repo or clone from GitHub</p>
+        </div>
+        <div class="concept-card">
+          <span class="icon">💾</span>
+          <h3>Stage & Commit</h3>
+          <p>Add → Stage → Commit your snapshots</p>
+        </div>
+        <div class="concept-card">
+          <span class="icon">🌿</span>
+          <h3>Branch</h3>
+          <p>Work safely without breaking main code</p>
+        </div>
+        <div class="concept-card">
+          <span class="icon">🗄️</span>
+          <h3>Stash</h3>
+          <p>Save unfinished work and return to it later</p>
+        </div>
+        <div class="concept-card">
+          <span class="icon">🧩</span>
+          <h3>Merge</h3>
+          <p>Combine completed feature branches</p>
+        </div>
+        <div class="concept-card">
+          <span class="icon">↩️</span>
+          <h3>Undo</h3>
+          <p>restore and revert for safe corrections</p>
+        </div>
+        <div class="concept-card">
+          <span class="icon">☁️</span>
+          <h3>Push & Pull</h3>
+          <p>Sync your work with the GitHub cloud</p>
+        </div>
+        <div class="concept-card">
+          <span class="icon">👮</span>
+          <h3>Pull Requests</h3>
+          <p>Professional code review before merging</p>
+        </div>
+        <div class="concept-card">
+          <span class="icon">🚀</span>
+          <h3>Next Steps</h3>
+          <p>Practice daily — Git mastery comes with use!</p>
+        </div>
+      </div>
+
+      <div class="instructor-card" style="display:inline-block;">
+        <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:0.15em; color:var(--primary); margin-bottom:8px; font-weight:600;">Thank You!</div>
+        <div class="instructor-name">Indika Hiran Wijesinghe</div>
+        <div class="instructor-creds">MSc (Big Data Analytics) • MSc in MIT • BSc Hons • BCS • CSSL • SCJP • SCMAD • SCBCD</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- NAVIGATION -->
+<div id="nav">
+  <button class="nav-btn" id="prev-btn" title="Previous">◀</button>
+  <div id="indicators"></div>
+  <div id="slide-counter">01 / 13</div>
+  <button class="nav-btn" id="next-btn" title="Next">▶</button>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const indicators = document.getElementById('indicators');
+  const counter = document.getElementById('slide-counter');
+  const progress = document.getElementById('progress-bar');
+  let current = 0;
+  let isAnimating = false;
+
+  // Build indicators
+  slides.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'indicator' + (i === 0 ? ' active' : '');
+    dot.addEventListener('click', () => goTo(i));
+    indicators.appendChild(dot);
+  });
+
+  function goTo(n) {
+    if (isAnimating || n === current) return;
+    if (n < 0 || n >= slides.length) return;
+    isAnimating = true;
+
+    slides[current].classList.add('exit');
+    slides[current].classList.remove('active');
+    
+    setTimeout(() => {
+      slides[current].classList.remove('exit');
+      current = n;
+      slides[current].classList.add('active');
+      slides[current].scrollTop = 0;
+      updateUI();
+      setTimeout(() => { isAnimating = false; }, 600);
+    }, 300);
+  }
+
+  function updateUI() {
+    document.querySelectorAll('.indicator').forEach((d, i) => {
+      d.classList.toggle('active', i === current);
+    });
+    counter.textContent = String(current + 1).padStart(2, '0') + ' / ' + String(slides.length).padStart(2, '0');
+    const pct = ((current) / (slides.length - 1)) * 100;
+    progress.style.width = pct + '%';
+  }
+
+  document.getElementById('prev-btn').addEventListener('click', () => goTo(current - 1));
+  document.getElementById('next-btn').addEventListener('click', () => goTo(current + 1));
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); goTo(current + 1); }
+    if (e.key === 'ArrowLeft') goTo(current - 1);
+  });
+
+  // Touch/swipe support
+  let touchStartX = 0;
+  document.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+  document.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].screenX - touchStartX;
+    if (Math.abs(dx) > 60) { dx < 0 ? goTo(current + 1) : goTo(current - 1); }
+  });
+
+  updateUI();
+</script>
+</body>
+</html>
