@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Crash Course - Interactive Slides</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inconsolata:wght@400;700&family=Fira+Code:wght@400;600&family=DM+Serif+Display:ital@0;1&family=Work+Sans:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2d6a4f;
+            --secondary: #52b788;
+            --accent: #f4a261;
+            --dark: #1b263b;
+            --light: #f0f3f5;
+            --code-bg: #0d1b2a;
+            --terminal-green: #40916c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Work Sans', sans-serif;
+            background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 50%, #0d1b2a 100%);
+            color: var(--light);
+            overflow: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(82, 183, 136, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(244, 162, 97, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .slide-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
+
+        .slide {
+            display: none;
+            width: 90%;
+            max-width: 1200px;
+            height: 85vh;
+            background: rgba(27, 38, 59, 0.8);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 60px 80px;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(82, 183, 136, 0.2);
+            animation: slideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .slide h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 4rem;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titleFade 0.8s ease-out 0.2s both;
+        }
+
+        @keyframes titleFade {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide h2 {
+            font-family: 'Work Sans', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: var(--secondary);
+            font-weight: 700;
+            animation: titleFade 0.8s ease-out 0.3s both;
+        }
+
+        .quote {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.8rem;
+            font-style: italic;
+            color: var(--accent);
+            margin: 2rem 0;
+            padding-left: 2rem;
+            border-left: 4px solid var(--accent);
+            animation: quoteFade 1s ease-out 0.5s both;
+        }
+
+        @keyframes quoteFade {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .quote-author {
+            font-size: 1.2rem;
+            color: var(--light);
+            margin-top: 1rem;
+            opacity: 0.8;
+        }
+
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            animation: contentFade 0.8s ease-out 0.4s both;
+        }
+
+        @keyframes contentFade {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .bullet-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .bullet-list li {
+            font-size: 1.3rem;
+            line-height: 1.8;
+            margin-bottom: 1.2rem;
+            padding-left: 2.5rem;
+            position: relative;
+            opacity: 0;
+            animation: bulletFade 0.5s ease-out both;
+        }
+
+        .bullet-list li:nth-child(1) { animation-delay: 0.5s; }
+        .bullet-list li:nth-child(2) { animation-delay: 0.6s; }
+        .bullet-list li:nth-child(3) { animation-delay: 0.7s; }
+        .bullet-list li:nth-child(4) { animation-delay: 0.8s; }
+        .bullet-list li:nth-child(5) { animation-delay: 0.9s; }
+
+        @keyframes bulletFade {
+            from {
+                opacity: 0;
+                transform: translateX(-15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .bullet-list li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-size: 1.5rem;
+        }
+
+        .code-block {
+            background: var(--code-bg);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            border: 1px solid rgba(82, 183, 136, 0.3);
+            position: relative;
+            overflow: hidden;
+            animation: codeFade 0.6s ease-out 0.7s both;
+        }
+
+        @keyframes codeFade {
+            from {
+                opacity: 0;
+                transform: scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .code-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--terminal-green), var(--accent));
+            animation: codeLineSlide 1s ease-out 0.8s both;
+        }
+
+        @keyframes codeLineSlide {
+            from {
+                transform: translateX(-100%);
+            }
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        .code-block pre {
+            margin: 0;
+            color: #d6deeb;
+        }
+
+        .code-keyword { color: #c792ea; }
+        .code-function { color: #82aaff; }
+        .code-string { color: #addb67; }
+        .code-comment { color: #637777; font-style: italic; }
+        .code-number { color: #f78c6c; }
+        .code-operator { color: #89ddff; }
+
+        .terminal-output {
+            background: linear-gradient(135deg, #0a1929 0%, #0d1b2a 100%);
+            border-radius: 12px;
+            padding: 2rem;
+            font-family: 'Inconsolata', monospace;
+            margin: 1.5rem 0;
+            border: 2px solid var(--terminal-green);
+            position: relative;
+            animation: terminalFade 0.6s ease-out 0.8s both;
+        }
+
+        @keyframes terminalFade {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .terminal-output::before {
+            content: '>>> ';
+            color: var(--terminal-green);
+            font-weight: bold;
+        }
+
+        .terminal-output .output {
+            color: var(--accent);
+            margin-top: 0.5rem;
+            display: block;
+        }
+
+        .highlight-box {
+            background: rgba(82, 183, 136, 0.1);
+            border-left: 4px solid var(--secondary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            animation: highlightSlide 0.6s ease-out 0.6s both;
+        }
+
+        @keyframes highlightSlide {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 1rem 0;
+        }
+
+        .comparison-box {
+            background: rgba(27, 38, 59, 0.6);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(82, 183, 136, 0.2);
+            animation: boxFade 0.6s ease-out both;
+        }
+
+        .comparison-box:nth-child(1) { animation-delay: 0.6s; }
+        .comparison-box:nth-child(2) { animation-delay: 0.8s; }
+
+        @keyframes boxFade {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .comparison-box h3 {
+            color: var(--accent);
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+
+        .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            color: var(--dark);
+            padding: 0.5rem 1.2rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 1rem;
+            margin: 0.3rem;
+            animation: badgePop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
+        }
+
+        @keyframes badgePop {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .badge:nth-child(1) { animation-delay: 0.7s; }
+        .badge:nth-child(2) { animation-delay: 0.8s; }
+        .badge:nth-child(3) { animation-delay: 0.9s; }
+        .badge:nth-child(4) { animation-delay: 1s; }
+
+        .navigation {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(13, 27, 42, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(82, 183, 136, 0.3);
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, var(--secondary), var(--terminal-green));
+            color: var(--dark);
+            border: none;
+            padding: 0.8rem 1.8rem;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Work Sans', sans-serif;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(82, 183, 136, 0.4);
+        }
+
+        .nav-btn:active {
+            transform: translateY(0);
+        }
+
+        .slide-counter {
+            color: var(--light);
+            font-size: 1.1rem;
+            font-weight: 500;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .slide-indicator {
+            display: flex;
+            gap: 0.5rem;
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            z-index: 1000;
+        }
+
+        .indicator-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(82, 183, 136, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .indicator-dot.active {
+            background: var(--secondary);
+            width: 30px;
+            border-radius: 5px;
+        }
+
+        .grid-pattern {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .grid-item {
+            background: rgba(82, 183, 136, 0.1);
+            border: 2px solid rgba(82, 183, 136, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            animation: gridItemFade 0.5s ease-out both;
+        }
+
+        .grid-item:nth-child(1) { animation-delay: 0.6s; }
+        .grid-item:nth-child(2) { animation-delay: 0.7s; }
+        .grid-item:nth-child(3) { animation-delay: 0.8s; }
+        .grid-item:nth-child(4) { animation-delay: 0.9s; }
+
+        @keyframes gridItemFade {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .grid-item:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            background: rgba(244, 162, 97, 0.15);
+        }
+
+        .grid-item h4 {
+            color: var(--accent);
+            margin-bottom: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        .interactive-demo {
+            background: rgba(13, 27, 42, 0.8);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 1rem 0;
+            border: 2px solid var(--secondary);
+        }
+
+        .demo-input {
+            width: 100%;
+            background: rgba(27, 38, 59, 0.8);
+            border: 2px solid rgba(82, 183, 136, 0.4);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            color: var(--light);
+            margin-bottom: 1rem;
+        }
+
+        .demo-button {
+            background: linear-gradient(135deg, var(--accent), #e76f51);
+            color: var(--dark);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(244, 162, 97, 0.4);
+        }
+
+        .demo-output {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(64, 145, 108, 0.2);
+            border-radius: 8px;
+            font-family: 'Inconsolata', monospace;
+            color: var(--terminal-green);
+            font-size: 1.2rem;
+        }
+
+        .typing-animation {
+            overflow: hidden;
+            white-space: nowrap;
+            animation: typing 2s steps(40) 0.5s both;
+        }
+
+        @keyframes typing {
+            from {
+                width: 0;
+            }
+            to {
+                width: 100%;
+            }
+        }
+
+        .pulse-glow {
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(82, 183, 136, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(82, 183, 136, 0.6);
+            }
+        }
+
+        .big-number {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-align: center;
+            margin: 1rem 0;
+            animation: numberPulse 1s ease-out 0.5s both;
+        }
+
+        @keyframes numberPulse {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Custom scrollbar */
+        .slide::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .slide::-webkit-scrollbar-track {
+            background: rgba(82, 183, 136, 0.1);
+            border-radius: 4px;
+        }
+
+        .slide::-webkit-scrollbar-thumb {
+            background: var(--secondary);
+            border-radius: 4px;
+        }
+
+        .slide::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <h1>Python Programming</h1>
+            <div class="quote">
+                "A language that doesn't affect the way you think about programming, is not worth knowing."
+                <div class="quote-author">— Alan J. Perlis</div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Say Hello World -->
+        <div class="slide">
+            <h2>Say "Hello World!"</h2>
+            <div class="content">
+                <ul class="bullet-list">
+                    <li>It is a tradition (since the C programming language book) to display <code>"Hello World!"</code> in a computer console (terminal).</li>
+                    <li><code>print</code> is a Python built-in function name. A function performs some tasks.</li>
+                    <li>Here it prints the message (a string) <code>"Hello World!"</code> to the console.</li>
+                </ul>
+                <div class="code-block">
+                    <pre><span class="code-function">print</span>(<span class="code-string">"Hello World!"</span>)</pre>
+                </div>
+                <div class="terminal-output">
+                    print("Hello World!")
+                    <span class="output">Hello World!</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Function Call -->
+        <div class="slide">
+            <h2>Function Call</h2>
+            <div class="content">
+                <ul class="bullet-list">
+                    <li>A function, like a computer, processes its input and performs some tasks.</li>
+                    <li>A function name followed by a pair of parentheses is a <strong>function call</strong> – the computer runs/executes the function. For example, <code>print("Hello World")</code>.</li>
+                    <li>The string <code>"Hello World!"</code> is the <strong>input</strong> to the print function.</li>
+                    <li>A string is written inside a pair of double quotes or single quotes: <code>print('Hello World!')</code>.</li>
+                </ul>
+                <div class="highlight-box">
+                    <strong>Function = Input → Processing → Output</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Python is Simple and Easy -->
+        <div class="slide">
+            <h2>Python is Simple and Easy</h2>
+            <div class="content">
+                <div class="two-column">
+                    <div class="comparison-box">
+                        <h3>In Python</h3>
+                        <div class="code-block">
+                            <pre><span class="code-function">print</span>(<span class="code-string">"Hello World!"</span>)</pre>
+                        </div>
+                    </div>
+                    <div class="comparison-box">
+                        <h3>In Java</h3>
+                        <div class="code-block">
+                            <pre><span class="code-keyword">public class</span> Main {
+    <span class="code-keyword">public static void</span> <span class="code-function">main</span>(String[] args) {
+        System.out.<span class="code-function">println</span>(<span class="code-string">"Hello World"</span>);
+    }
+}</pre>
+                        </div>
+                    </div>
+                </div>
+                <div class="highlight-box">
+                    <strong>Python: 1 line of code vs Java: 5 lines of boilerplate!</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: A Computer Can Compute -->
+        <div class="slide">
+            <h2>A Computer Can Compute</h2>
+            <div class="content">
+                <ul class="bullet-list">
+                    <li>It is a good idea to put a space before and after the <code>+</code> operator to make it easy to read.</li>
+                    <li>The Python interpreter will ignore those spaces.</li>
+                </ul>
+                <div class="interactive-demo">
+                    <div class="code-block">
+                        <pre><span class="code-number">2</span> <span class="code-operator">+</span> <span class="code-number">3</span></pre>
+                    </div>
+                    <div class="terminal-output">
+                        2 + 3
+                        <span class="output">5</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Two Execution Modes -->
+        <div class="slide">
+            <h2>Two Execution Modes</h2>
+            <div class="content">
+                <p style="font-size: 1.3rem; margin-bottom: 2rem;">You run Python code in one of two modes:</p>
+                <div class="two-column">
+                    <div class="comparison-box">
+                        <h3>1. Interactive</h3>
+                        <p>Type and run code directly inside the Python Interpreter (<code>>>></code>). Convenient for small snippets.</p>
+                        <div class="code-block" style="margin-top: 1rem;">
+                            <pre><span class="code-comment">>> </span><span class="code-function">print</span>(<span class="code-string">"Hi!"</span>)</pre>
+                        </div>
+                    </div>
+                    <div class="comparison-box">
+                        <h3>2. Script</h3>
+                        <p>Type code into a file (<code>.py</code>), then run it as <code>python3 filename.py</code>. Used for most applications.</p>
+                        <div class="code-block" style="margin-top: 1rem;">
+                            <pre><span class="code-comment"># script.py</span>
+<span class="code-function">print</span>(<span class="code-string">"Hi!"</span>)</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: More Computations -->
+        <div class="slide">
+            <h2>More Computations</h2>
+            <div class="content">
+                <p style="font-size: 1.3rem; margin-bottom: 1.5rem;">Python supports common mathematic operations. Use <code>#</code> for comments (ignored by Python).</p>
+                <div class="code-block">
+                    <pre><span class="code-number">1</span> <span class="code-operator">+</span> <span class="code-number">2</span>      <span class="code-comment"># Addition</span>
+<span class="code-number">5</span> <span class="code-operator">-</span> <span class="code-number">3</span>      <span class="code-comment"># Subtraction</span>
+<span class="code-number">3</span> <span class="code-operator">*</span> <span class="code-number">5</span> <span class="code-operator">-</span> <span class="code-number">2</span>  <span class="code-comment"># Multiplication</span>
+<span class="code-number">7</span> <span class="code-operator">/</span> <span class="code-number">5</span>      <span class="code-comment"># Division</span>
+<span class="code-number">2</span> <span class="code-operator">**</span> <span class="code-number">10</span>    <span class="code-comment"># Exponential (Power)</span>
+<span class="code-number">7</span> <span class="code-operator">//</span> <span class="code-number">5</span>     <span class="code-comment"># Quotient (Floor Division)</span>
+<span class="code-number">7</span> <span class="code-operator">%</span> <span class="code-number">5</span>      <span class="code-comment"># Remainder (Modulus)</span></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Operation Orders -->
+        <div class="slide">
+            <h2>Operation Orders</h2>
+            <div class="content">
+                <p style="font-size: 1.3rem; margin-bottom: 1.5rem;">It is a best practice to use parenthesis for operation order to avoid ambiguity.</p>
+                <div class="code-block">
+                    <pre>(<span class="code-number">3</span> <span class="code-operator">*</span> <span class="code-number">5</span>) <span class="code-operator">-</span> <span class="code-number">2</span>      <span class="code-comment"># Clear order</span>
+<span class="code-number">3</span> <span class="code-operator">*</span> (<span class="code-number">5</span> <span class="code-operator">-</span> <span class="code-number">2</span>)      <span class="code-comment"># Change order</span>
+<span class="code-number">2</span> <span class="code-operator">**</span> <span class="code-number">3</span> <span class="code-operator">**</span> <span class="code-number">2</span>      <span class="code-comment"># Unclear</span>
+(<span class="code-number">2</span> <span class="code-operator">**</span> <span class="code-number">3</span>) <span class="code-operator">**</span> <span class="code-number">2</span>    <span class="code-comment"># No ambiguity</span></pre>
+                </div>
+                <div class="two-column">
+                    <div class="terminal-output">
+                        (3 * 5) - 2
+                        <span class="output">13</span>
+                    </div>
+                    <div class="terminal-output">
+                        3 * (5 - 2)
+                        <span class="output">9</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Complex Math -->
+        <div class="slide">
+            <h2>Complex Math</h2>
+            <div class="content">
+                <p style="font-size: 1.3rem; margin-bottom: 1.5rem;">Python puts more math functions in the <code>math</code> module. You must import it before use.</p>
+                <div class="code-block">
+                    <pre><span class="code-keyword">import</span> math
+<span class="code-function">print</span>(math.<span class="code-function">sqrt</span>(<span class="code-number">2</span>))
+<span class="code-function">print</span>(math.<span class="code-function">log</span>(<span class="code-number">2</span>))</pre>
+                </div>
+                <div class="terminal-output">
+                    import math; print(math.sqrt(2))
+                    <span class="output">1.4142135623730951</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Python Functions (Sources) -->
+        <div class="slide">
+            <h2>Python Functions (Sources)</h2>
+            <div class="content">
+                <p style="font-size: 1.3rem; margin-bottom: 1.5rem;">There are three sources for functions:</p>
+                <div class="grid-pattern">
+                    <div class="grid-item">
+                        <h4>Built-in</h4>
+                        <p>Essential functions like <code>print</code>, <code>input</code></p>
+                    </div>
+                    <div class="grid-item">
+                        <h4>Standard Library</h4>
+                        <p>Common functions included with Python, but require <code>import</code> (e.g., <code>math</code>)</p>
+                    </div>
+                    <div class="grid-item">
+                        <h4>Installation Packages</h4>
+                        <p>Third-party packages (e.g., AI/Data Science tools) you download online</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Comparison -->
+        <div class="slide">
+            <h2>Comparison</h2>
+            <div class="content">
+                <p style="font-size: 1.3rem; margin-bottom: 1.5rem;">Comparison results are Boolean values: <code>True</code> or <code>False</code>.</p>
+                <div class="code-block">
+                    <pre><span class="code-number">3</span> <span class="code-operator">></span> <span class="code-number">2</span>           <span class="code-comment"># True</span>
+<span class="code-number">3</span> <span class="code-operator">==</span> <span class="code-number">2</span>          <span class="code-comment"># False</span>
+<span class="code-number">3</span> <span class="code-operator">!=</span> <span class="code-number">2</span>          <span class="code-comment"># True</span>
+(<span class="code-number">7</span> <span class="code-operator">/</span> <span class="code-number">5</span>) <span class="code-operator">>=</span> <span class="code-number">1</span>    <span class="code-comment"># True</span>
+<span class="code-comment"># Can be chained:</span>
+<span class="code-number">2</span> <span class="code-operator">></span> math.<span class="code-function">sqrt</span>(<span class="code-number">3</span>) <span class="code-operator">></span> math.<span class="code-function">sqrt</span>(<span class="code-number">2</span>)</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Logical Operations -->
+        <div class="slide">
+            <h2>Logical Operations</h2>
+            <div class="content">
+                <p style="font-size: 1.3rem; margin-bottom: 1.5rem;">Three basic operations: <code>not</code>, <code>and</code>, and <code>or</code>.</p>
+                <div class="code-block">
+                    <pre><span class="code-keyword">not</span> (<span class="code-number">3</span> <span class="code-operator">==</span> <span class="code-number">2</span>)                <span class="code-comment"># True</span>
+(<span class="code-number">3</span> <span class="code-operator">></span> <span class="code-number">2</span>) <span class="code-keyword">and</span> ((<span class="code-number">7</span> <span class="code-operator">/</span> <span class="code-number">5</span>) <span class="code-operator">></span> <span class="code-number">3</span>)   <span class="code-comment"># False</span>
+(<span class="code-number">3</span> <span class="code-operator">==</span> <span class="code-number">2</span>) <span class="code-keyword">or</span> (<span class="code-number">3</span> <span class="code-operator">>=</span> <span class="code-number">2</span>)        <span class="code-comment"># True</span></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: CPU -->
+        <div class="slide">
+            <h2>CPU</h2>
+            <div class="content">
+                <ul class="bullet-list">
+                    <li>All a computer does is simple arithmetic and logic.</li>
+                    <li>Core component: <strong>ALU (Arithmetic and Logic Unit)</strong>.</li>
+                    <li>Complex functions (AI, image processing) are built on these simple operations.</li>
+                </ul>
+                <div class="highlight-box">
+                    <div style="text-align: center; font-size: 1.5rem; margin-top: 1rem;">
+                        <strong>Simple Operations → Complex Programs</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Literals Are Not Enough -->
+        <div class="slide">
+            <h2>Literals Are Not Enough</h2>
+            <div class="content">
+                <p style="font-size: 1.3rem; margin-bottom: 1.5rem;">We need <strong>Variables</strong> to:</p>
+                <div class="grid-pattern">
+                    <div class="grid-item">
+                        <h4>Name Data</h4>
+                        <p>Give meaningful names to values</p>
+                    </div>
+                    <div class="grid-item">
+                        <h4>Store Results</h4>
+                        <p>Save computation output</p>
+                    </div>
+                    <div class="grid-item">
+                        <h4>Short Reference</h4>
+                        <p>Use in multiple places</p>
+                    </div>
+                    <div class="grid-item">
+                        <h4>User Input</h4>
+                        <p>Refer to non-existing data</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: Variables -->
+        <div class="slide">
+            <h2>Variables</h2>
+            <div class="content">
+                <p style="font-size: 1.3rem; margin-bottom: 1.5rem;">A Python variable is a symbolic name that is a reference to data.</p>
+                <div class="code-block">
+                    <pre>pi <span class="code-operator">=</span> <span class="code-number">3.14159</span>
+diameter <span class="code-operator">=</span> <span class="code-number">2</span> <span class="code-operator">*</span> radius</pre>
+                </div>
+                <div class="highlight-box" style="margin-top: 2rem;">
+                    <strong>Variable = Label pointing to data in memory</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16: A Simple Program -->
+        <div class="slide">
+            <h2>A Simple Program</h2>
+            <div class="content">
+                <div class="code-block">
+                    <pre>pi <span class="code-operator">=</span> <span class="code-number">3.14159</span>
+radius_input <span class="code-operator">=</span> <span class="code-function">input</span>(<span class="code-string">"Please input radius: "</span>)
+radius <span class="code-operator">=</span> <span class="code-function">float</span>(radius_input)
+diameter <span class="code-operator">=</span> <span class="code-number">2</span> <span class="code-operator">*</span> radius
+circumference <span class="code-operator">=</span> pi <span class="code-operator">*</span> diameter
+<span class="code-function">print</span>(circumference)</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 17: Better Output (f-strings) -->
+        <div class="slide">
+            <h2>Better Output (f-strings)</h2>
+            <div class="content">
+                <p style="font-size: 1.3rem; margin-bottom: 1.5rem;">F-strings create text from variables using <code>{variable}</code>.</p>
+                <div class="code-block">
+                    <pre><span class="code-function">print</span>(<span class="code-string">f"The circumference of radius {radius} is {circumference}."</span>)</pre>
+                </div>
+                <div class="highlight-box" style="margin-top: 1.5rem;">
+                    <p><strong>Format modifiers:</strong> <code>:.2f</code> shows 2 decimal places.</p>
+                    <div class="code-block" style="margin-top: 1rem;">
+                        <pre><span class="code-function">print</span>(<span class="code-string">f"Value: {circumference:.2f}"</span>)</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 18: Life is Not Linear (Branches) -->
+        <div class="slide">
+            <h2>Life is Not Linear (Branches)</h2>
+            <div class="content">
+                <p style="font-size: 1.3rem; margin-bottom: 1.5rem;">Python uses <strong>indentation</strong> (4 spaces) to mark a code block.</p>
+                <div class="code-block">
+                    <pre><span class="code-keyword">if</span> score <span class="code-operator">>=</span> <span class="code-number">900</span>:
+    grade <span class="code-operator">=</span> <span class="code-string">"A"</span>
+<span class="code-keyword">elif</span> score <span class="code-operator">>=</span> <span class="code-number">800</span>:
+    grade <span class="code-operator">=</span> <span class="code-string">"B"</span>
+<span class="code-keyword">else</span>:
+    grade <span class="code-operator">=</span> <span class="code-string">"C"</span></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 19: Life is Full of Repetitions (Loops) -->
+        <div class="slide">
+            <h2>Life is Full of Repetitions (Loops)</h2>
+            <div class="content">
+                <div class="code-block">
+                    <pre><span class="code-keyword">while</span> score <span class="code-operator"><</span> <span class="code-number">900</span>:
+    <span class="code-function">print</span>(<span class="code-string">"Please keep studying..."</span>)
+    score <span class="code-operator">=</span> <span class="code-function">int</span>(<span class="code-function">input</span>(<span class="code-string">"New score: "</span>))</pre>
+                </div>
+                <div class="highlight-box" style="margin-top: 2rem;">
+                    <strong>While Loop: Repeats code as long as condition is True</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 20: Turing Complete -->
+        <div class="slide">
+            <h2>Turing Complete</h2>
+            <div class="content">
+                <p style="font-size: 1.5rem; margin-bottom: 2rem; text-align: center;">You have learned the fundamental programming concepts:</p>
+                <div class="grid-pattern">
+                    <div class="grid-item pulse-glow">
+                        <div class="big-number">1</div>
+                        <h4>Variables</h4>
+                    </div>
+                    <div class="grid-item pulse-glow">
+                        <div class="big-number">2</div>
+                        <h4>Sequential Execution</h4>
+                    </div>
+                    <div class="grid-item pulse-glow">
+                        <div class="big-number">3</div>
+                        <h4>Branch (if/else)</h4>
+                    </div>
+                    <div class="grid-item pulse-glow">
+                        <div class="big-number">4</div>
+                        <h4>Loop (while)</h4>
+                    </div>
+                </div>
+                <div class="highlight-box" style="margin-top: 2rem;">
+                    <strong style="font-size: 1.3rem;">These four concepts make a language Turing Complete!</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 21: List -->
+        <div class="slide">
+            <h2>List</h2>
+            <div class="content">
+                <p style="font-size: 1.3rem; margin-bottom: 1.5rem;">A sequence of values in square brackets. Access items by index (starting at 0).</p>
+                <div class="code-block">
+                    <pre>scores <span class="code-operator">=</span> [<span class="code-number">930</span>, <span class="code-number">790</span>, <span class="code-number">367</span>]
+<span class="code-function">print</span>(scores[<span class="code-number">0</span>])  <span class="code-comment"># 930</span>
+<span class="code-function">print</span>(scores[<span class="code-number">1</span>])  <span class="code-comment"># 790</span></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 22: For Loop -->
+        <div class="slide">
+            <h2>For Loop</h2>
+            <div class="content">
+                <p style="font-size: 1.3rem; margin-bottom: 1.5rem;">Used to iterate over a list.</p>
+                <div class="code-block">
+                    <pre><span class="code-keyword">for</span> score <span class="code-keyword">in</span> scores:
+    <span class="code-keyword">if</span> score <span class="code-operator">>=</span> <span class="code-number">900</span>:
+        <span class="code-function">print</span>(<span class="code-string">"Great!"</span>)</pre>
+                </div>
+                <div class="highlight-box" style="margin-top: 2rem;">
+                    <strong>For Loop: Processes each item in a sequence one by one</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 23: Dictionary -->
+        <div class="slide">
+            <h2>Dictionary</h2>
+            <div class="content">
+                <p style="font-size: 1.3rem; margin-bottom: 1.5rem;">Items stored as <code>key: value</code> pairs.</p>
+                <div class="code-block">
+                    <pre>student <span class="code-operator">=</span> {<span class="code-string">"Name"</span>: <span class="code-string">"Alice"</span>, <span class="code-string">"Age"</span>: <span class="code-number">20</span>}
+<span class="code-function">print</span>(student[<span class="code-string">"Name"</span>])  <span class="code-comment"># Alice</span>
+<span class="code-function">print</span>(student[<span class="code-string">"Age"</span>])   <span class="code-comment"># 20</span></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 24: Define a Function -->
+        <div class="slide">
+            <h2>Define a Function</h2>
+            <div class="content">
+                <p style="font-size: 1.3rem; margin-bottom: 1.5rem;">Used to avoid redundant code and make logic reusable.</p>
+                <div class="code-block">
+                    <pre><span class="code-keyword">def</span> <span class="code-function">get_circumference</span>(radius):
+    <span class="code-keyword">return</span> <span class="code-number">2</span> <span class="code-operator">*</span> math.pi <span class="code-operator">*</span> radius
+
+<span class="code-comment"># Using the function</span>
+result <span class="code-operator">=</span> <span class="code-function">get_circumference</span>(<span class="code-number">5</span>)
+<span class="code-function">print</span>(result)</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 25: Objects and Types -->
+        <div class="slide">
+            <h2>Objects and Types</h2>
+            <div class="content">
+                <p style="font-size: 1.5rem; margin-bottom: 2rem; text-align: center;">In Python, <strong>all data are objects</strong>. Every object has a <strong>type</strong>.</p>
+                <div class="code-block">
+                    <pre><span class="code-function">type</span>(<span class="code-string">"hi"</span>)      <span class="code-comment"># <class 'str'></span>
+<span class="code-function">type</span>(<span class="code-number">42</span>)       <span class="code-comment"># <class 'int'></span>
+<span class="code-function">type</span>(<span class="code-number">3.14</span>)     <span class="code-comment"># <class 'float'></span>
+<span class="code-function">type</span>([<span class="code-number">1</span>, <span class="code-number">2</span>])    <span class="code-comment"># <class 'list'></span></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 26: Method and Attribute -->
+        <div class="slide">
+            <h2>Method and Attribute</h2>
+            <div class="content">
+                <div class="two-column">
+                    <div class="comparison-box">
+                        <h3>Method</h3>
+                        <p style="margin-bottom: 1rem;">A function defined inside a type</p>
+                        <div class="code-block">
+                            <pre><span class="code-string">"hi"</span>.<span class="code-function">title</span>()
+<span class="code-comment"># "Hi"</span></pre>
+                        </div>
+                    </div>
+                    <div class="comparison-box">
+                        <h3>Attribute</h3>
+                        <p style="margin-bottom: 1rem;">Data contained in an object</p>
+                        <div class="code-block">
+                            <pre>math.pi
+<span class="code-comment"># 3.14159...</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 27: Computational Thinking -->
+        <div class="slide">
+            <h2>Computational Thinking</h2>
+            <div class="content">
+                <p style="font-size: 1.5rem; margin-bottom: 2rem; text-align: center;">The toolkit for problem-solving:</p>
+                <div class="grid-pattern">
+                    <div class="grid-item">
+                        <h4>Arithmetic/Logic</h4>
+                    </div>
+                    <div class="grid-item">
+                        <h4>Variables</h4>
+                    </div>
+                    <div class="grid-item">
+                        <h4>Control Flow</h4>
+                        <p style="font-size: 0.9rem;">(Sequence, Branch, Loop)</p>
+                    </div>
+                    <div class="grid-item">
+                        <h4>Composite Data</h4>
+                        <p style="font-size: 0.9rem;">(Lists/Dicts)</p>
+                    </div>
+                    <div class="grid-item">
+                        <h4>Functions</h4>
+                    </div>
+                    <div class="grid-item">
+                        <h4>Types</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 28: That's It -->
+        <div class="slide">
+            <h2>That's It!</h2>
+            <div class="content">
+                <ul class="bullet-list">
+                    <li>These are the essential constructs of any programming language.</li>
+                    <li>Everything else is "nice-to-have" or specialized.</li>
+                    <li>You will now learn the details to deepen this understanding.</li>
+                </ul>
+                <div class="highlight-box" style="margin-top: 3rem; padding: 2rem; text-align: center;">
+                    <h3 style="color: var(--accent); font-size: 2rem; margin-bottom: 1rem;">🎉 Congratulations! 🎉</h3>
+                    <p style="font-size: 1.5rem;">You've completed the Python Crash Course!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+        <button class="nav-btn" id="prevBtn">← Previous</button>
+        <div class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">28</span>
+        </div>
+        <button class="nav-btn" id="nextBtn">Next →</button>
+    </div>
+
+    <!-- Slide Indicators -->
+    <div class="slide-indicator" id="indicators"></div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentSlideSpan = document.getElementById('currentSlide');
+        const totalSlidesSpan = document.getElementById('totalSlides');
+        const indicatorsContainer = document.getElementById('indicators');
+
+        // Create indicators
+        for (let i = 0; i < totalSlides; i++) {
+            const dot = document.createElement('div');
+            dot.classList.add('indicator-dot');
+            if (i === 0) dot.classList.add('active');
+            dot.addEventListener('click', () => goToSlide(i));
+            indicatorsContainer.appendChild(dot);
+        }
+
+        const indicators = document.querySelectorAll('.indicator-dot');
+
+        totalSlidesSpan.textContent = totalSlides;
+
+        function showSlide(n) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            indicators.forEach(indicator => indicator.classList.remove('active'));
+            
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            indicators[currentSlide].classList.add('active');
+            currentSlideSpan.textContent = currentSlide + 1;
+
+            // Scroll to top of slide
+            slides[currentSlide].scrollTop = 0;
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function prevSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        function goToSlide(n) {
+            showSlide(n);
+        }
+
+        nextBtn.addEventListener('click', nextSlide);
+        prevBtn.addEventListener('click', prevSlide);
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevSlide();
+            }
+        });
+
+        // Touch/swipe support
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) {
+                nextSlide();
+            }
+            if (touchEndX > touchStartX + 50) {
+                prevSlide();
+            }
+        }
+    </script>
+</body>
+</html>

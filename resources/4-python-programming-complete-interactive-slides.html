@@ -1,0 +1,1700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Programming: Branches, Loops, Functions & Collections</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00d4aa;
+            --secondary: #00a8ff;
+            --accent: #ff6b6b;
+            --success: #51cf66;
+            --warning: #ffd43b;
+            --dark-bg: #0a0e27;
+            --dark-bg-2: #1a1f3a;
+            --code-bg: #0d1117;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--dark-bg);
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark-bg-2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary);
+        }
+
+        /* Animated Circuit Background */
+        .circuit-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(90deg, var(--dark-bg) 1px, transparent 1px),
+                linear-gradient(180deg, var(--dark-bg) 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .gradient-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, 
+                rgba(0, 212, 170, 0.1) 0%, 
+                rgba(0, 168, 255, 0.05) 50%, 
+                transparent 100%);
+            pointer-events: none;
+            z-index: 0;
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Slide Container */
+        .slide-container {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            z-index: 1;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+            background: rgba(26, 31, 58, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(0, 212, 170, 0.2);
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 212, 170, 0.1);
+            animation: slideIn 0.6s ease-out;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Title Styles */
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1.5rem;
+            animation: blurIn 0.8s ease-out;
+        }
+
+        @keyframes blurIn {
+            from {
+                filter: blur(10px);
+                opacity: 0;
+            }
+            to {
+                filter: blur(0);
+                opacity: 1;
+            }
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            animation: blurIn 0.8s ease-out 0.2s both;
+        }
+
+        h3 {
+            font-size: 1.8rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        /* Instructor Info */
+        .instructor-info {
+            background: rgba(0, 212, 170, 0.1);
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-top: 2rem;
+            animation: fadeInLeft 0.8s ease-out 0.4s both;
+        }
+
+        .instructor-info h3 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .credentials {
+            color: #a0aec0;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* Code Blocks */
+        .code-block {
+            background: var(--code-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95rem;
+            overflow-x: auto;
+            border-top: 3px solid var(--primary);
+            position: relative;
+            animation: scaleIn 0.6s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .code-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            animation: borderGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes borderGlow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .code-block pre {
+            margin: 0;
+            color: #e2e8f0;
+        }
+
+        .comment { color: #6a9955; }
+        .keyword { color: #569cd6; }
+        .string { color: #ce9178; }
+        .function { color: #dcdcaa; }
+        .number { color: #b5cea8; }
+
+        /* Concept Cards */
+        .concept-card {
+            background: rgba(0, 168, 255, 0.1);
+            border: 1px solid rgba(0, 168, 255, 0.3);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .concept-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 168, 255, 0.3);
+            border-color: var(--secondary);
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin: 0.8rem 0;
+            line-height: 1.8;
+            animation: fadeInLeft 0.6s ease-out;
+        }
+
+        li:nth-child(1) { animation-delay: 0.1s; }
+        li:nth-child(2) { animation-delay: 0.2s; }
+        li:nth-child(3) { animation-delay: 0.3s; }
+        li:nth-child(4) { animation-delay: 0.4s; }
+        li:nth-child(5) { animation-delay: 0.5s; }
+
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin: 0.3rem;
+            animation: popIn 0.5s ease-out;
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0) rotate(-180deg);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1) rotate(0);
+                opacity: 1;
+            }
+        }
+
+        .badge-primary { background: var(--primary); color: var(--dark-bg); }
+        .badge-secondary { background: var(--secondary); color: var(--dark-bg); }
+        .badge-success { background: var(--success); color: var(--dark-bg); }
+        .badge-warning { background: var(--warning); color: var(--dark-bg); }
+        .badge-accent { background: var(--accent); color: #fff; }
+
+        /* Grid Layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        /* Highlight Boxes */
+        .highlight {
+            background: rgba(255, 107, 107, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 1rem 1.5rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+        }
+
+        .info-box {
+            background: rgba(0, 168, 255, 0.1);
+            border-left: 4px solid var(--secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+        }
+
+        .success-box {
+            background: rgba(81, 207, 102, 0.1);
+            border-left: 4px solid var(--success);
+            padding: 1rem 1.5rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+        }
+
+        /* Visual Diagrams */
+        .diagram {
+            background: rgba(0, 212, 170, 0.05);
+            border: 2px dashed var(--primary);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .flow-arrow {
+            display: inline-block;
+            font-size: 2rem;
+            color: var(--secondary);
+            margin: 0 1rem;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Navigation */
+        .nav-controls {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 100;
+            background: rgba(26, 31, 58, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            border: 1px solid rgba(0, 212, 170, 0.3);
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border: none;
+            color: var(--dark-bg);
+            padding: 0.8rem 1.5rem;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 212, 170, 0.4);
+        }
+
+        .slide-indicator {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            background: var(--primary);
+            width: 30px;
+            border-radius: 5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            h2 { font-size: 1.8rem; }
+            h3 { font-size: 1.4rem; }
+            .slide { padding: 1.5rem; }
+            .nav-controls { 
+                flex-direction: column;
+                bottom: 1rem;
+                padding: 1rem;
+            }
+        }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: rgba(0, 168, 255, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            background: rgba(0, 212, 170, 0.2);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: rgba(0, 168, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Effects -->
+    <div class="circuit-bg"></div>
+    <div class="gradient-overlay"></div>
+
+    <!-- Slides Container -->
+    <div class="slide-container">
+        
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <h1>🐍 Python Programming</h1>
+            <h2>Master the Fundamentals</h2>
+            <div style="margin: 2rem 0;">
+                <span class="badge badge-primary">Branches</span>
+                <span class="badge badge-secondary">Loops</span>
+                <span class="badge badge-success">Functions</span>
+                <span class="badge badge-warning">Collections</span>
+            </div>
+            <div class="instructor-info">
+                <h3>📚 Instructor</h3>
+                <p style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">Indika Hiran Wijesinghe</p>
+                <p class="credentials">
+                    MSc (Big Data Analytics) • MSc (MIT) • BSc Hons<br>
+                    BCS • CSSL • SCJP • SCMAD • SCBCD
+                </p>
+            </div>
+            <div style="margin-top: 3rem; text-align: center; color: #a0aec0;">
+                <p>🚀 An Interactive Journey Through Python Programming</p>
+                <p style="font-size: 0.9rem; margin-top: 1rem;">Use arrow keys, spacebar, or navigation buttons to navigate</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Course Overview -->
+        <div class="slide">
+            <h2>📋 Course Overview</h2>
+            <div class="grid-2">
+                <div class="concept-card">
+                    <h3>🔀 Chapter 3: Branches</h3>
+                    <ul>
+                        <li>Boolean Logic & Conditions</li>
+                        <li>if, elif, else Statements</li>
+                        <li>Nested Conditions</li>
+                        <li>Match Statements (Python 3.10+)</li>
+                    </ul>
+                </div>
+                <div class="concept-card">
+                    <h3>🔁 Chapter 4: Loops</h3>
+                    <ul>
+                        <li>while Loops</li>
+                        <li>for Loops & range()</li>
+                        <li>Loop Control (break, continue)</li>
+                        <li>Nested Loops</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="concept-card">
+                    <h3>⚙️ Chapter 5: Functions</h3>
+                    <ul>
+                        <li>Defining Functions</li>
+                        <li>Parameters & Arguments</li>
+                        <li>Return Values</li>
+                        <li>Scope & Best Practices</li>
+                    </ul>
+                </div>
+                <div class="concept-card">
+                    <h3>📦 Chapter 6: Collections</h3>
+                    <ul>
+                        <li>Lists (Mutable)</li>
+                        <li>Tuples (Immutable)</li>
+                        <li>Dictionaries (Key-Value)</li>
+                        <li>Sets (Unique Elements)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHAPTER 3: BRANCHES -->
+
+        <!-- Slide 3: Introduction to Branches -->
+        <div class="slide">
+            <h2>🔀 Chapter 3: Branches</h2>
+            <h3>Making Decisions in Code</h3>
+            <div class="info-box">
+                <p><strong>🎯 Real-World Analogy:</strong> Think of branches like a GPS navigation system. When you reach an intersection, the GPS makes a decision: "If traffic is heavy, take the alternate route, otherwise continue on the main road."</p>
+            </div>
+            <div class="diagram">
+                <div style="font-size: 1.5rem;">
+                    🚦 <strong>Condition?</strong>
+                    <div class="flow-arrow">⬇️</div>
+                    <div style="display: flex; justify-content: center; gap: 2rem; margin-top: 1rem;">
+                        <div style="background: rgba(81, 207, 102, 0.2); padding: 1rem; border-radius: 10px;">
+                            ✅ True → Action A
+                        </div>
+                        <div style="background: rgba(255, 107, 107, 0.2); padding: 1rem; border-radius: 10px;">
+                            ❌ False → Action B
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="success-box">
+                <p><strong>Key Concept:</strong> Branches allow your program to make decisions and execute different code based on conditions.</p>
+            </div>
+        </div>
+
+        <!-- Slide 4: Boolean Logic -->
+        <div class="slide">
+            <h2>🔍 Boolean Logic</h2>
+            <h3>The Foundation of Decision Making</h3>
+            <div class="grid-2">
+                <div>
+                    <h3>Comparison Operators</h3>
+                    <table>
+                        <tr><th>Operator</th><th>Meaning</th><th>Example</th></tr>
+                        <tr><td>==</td><td>Equal to</td><td>5 == 5 → True</td></tr>
+                        <tr><td>!=</td><td>Not equal</td><td>5 != 3 → True</td></tr>
+                        <tr><td>&gt;</td><td>Greater than</td><td>7 &gt; 5 → True</td></tr>
+                        <tr><td>&lt;</td><td>Less than</td><td>3 &lt; 5 → True</td></tr>
+                        <tr><td>&gt;=</td><td>Greater or equal</td><td>5 &gt;= 5 → True</td></tr>
+                        <tr><td>&lt;=</td><td>Less or equal</td><td>3 &lt;= 5 → True</td></tr>
+                    </table>
+                </div>
+                <div>
+                    <h3>Logical Operators</h3>
+                    <table>
+                        <tr><th>Operator</th><th>Description</th></tr>
+                        <tr><td>and</td><td>Both must be True</td></tr>
+                        <tr><td>or</td><td>At least one True</td></tr>
+                        <tr><td>not</td><td>Reverses the value</td></tr>
+                    </table>
+                    <div class="code-block">
+<pre><span class="comment"># Logical operators in action</span>
+age = <span class="number">25</span>
+has_license = <span class="keyword">True</span>
+
+<span class="comment"># Can rent a car?</span>
+can_rent = age >= <span class="number">21</span> <span class="keyword">and</span> has_license
+<span class="function">print</span>(can_rent)  <span class="comment"># True</span></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: if-else Statement -->
+        <div class="slide">
+            <h2>✅ The if-else Statement</h2>
+            <h3>Two-Way Decision Making</h3>
+            <div class="diagram">
+                <div style="font-size: 1.2rem;">
+                    <div style="background: rgba(0, 168, 255, 0.2); padding: 1rem; border-radius: 10px; margin-bottom: 1rem;">
+                        🧐 <strong>if</strong> condition is True:
+                        <div class="flow-arrow">⬇️</div>
+                        Execute if-block
+                    </div>
+                    <div style="background: rgba(255, 107, 107, 0.2); padding: 1rem; border-radius: 10px;">
+                        🚫 <strong>else</strong> (condition is False):
+                        <div class="flow-arrow">⬇️</div>
+                        Execute else-block
+                    </div>
+                </div>
+            </div>
+            <div class="code-block">
+<pre><span class="comment"># Pass/Fail grading system</span>
+PASS_SCORE = <span class="number">60</span>
+score = <span class="function">int</span>(<span class="function">input</span>(<span class="string">"Enter your score: "</span>))
+
+<span class="keyword">if</span> score >= PASS_SCORE:
+    <span class="function">print</span>(<span class="string">f'Score of {score} is a pass! 🎉'</span>)
+    grade = <span class="string">'Pass'</span>
+<span class="keyword">else</span>:
+    <span class="function">print</span>(<span class="string">f'Score of {score} is a fail. 😞'</span>)
+    grade = <span class="string">'Fail'</span>
+
+<span class="function">print</span>(<span class="string">f'Your grade is {grade}'</span>)</pre>
+            </div>
+            <div class="success-box">
+                <p><strong>💡 Key Point:</strong> Notice the colon (:) after the condition and the indentation! Python uses indentation to define code blocks.</p>
+            </div>
+        </div>
+
+        <!-- Slide 6: if-elif-else Statement -->
+        <div class="slide">
+            <h2>🎯 The if-elif-else Statement</h2>
+            <h3>Multiple Decision Branches</h3>
+            <div class="info-box">
+                <p><strong>🎓 Real-World Analogy:</strong> Like a restaurant menu with categories: "If you want breakfast items, go to section A, else if you want lunch, go to section B, else if you want dinner, go to section C, else see desserts."</p>
+            </div>
+            <div class="code-block">
+<pre><span class="comment"># Letter grade assignment</span>
+A_SCORE = <span class="number">90</span>
+B_SCORE = <span class="number">80</span>
+C_SCORE = <span class="number">70</span>
+D_SCORE = <span class="number">60</span>
+
+score = <span class="function">int</span>(<span class="function">input</span>(<span class="string">"Please enter your score: "</span>))
+
+<span class="keyword">if</span> score >= A_SCORE:
+    grade = <span class="string">"A"</span>
+    emoji = <span class="string">"🌟"</span>
+<span class="keyword">elif</span> score >= B_SCORE:
+    grade = <span class="string">"B"</span>
+    emoji = <span class="string">"😊"</span>
+<span class="keyword">elif</span> score >= C_SCORE:
+    grade = <span class="string">"C"</span>
+    emoji = <span class="string">"🙂"</span>
+<span class="keyword">elif</span> score >= D_SCORE:
+    grade = <span class="string">"D"</span>
+    emoji = <span class="string">"😐"</span>
+<span class="keyword">else</span>:
+    grade = <span class="string">"F"</span>
+    emoji = <span class="string">"😞"</span>
+
+<span class="function">print</span>(<span class="string">f'Grade for score {score} is {grade} {emoji}'</span>)</pre>
+            </div>
+        </div>
+
+        <!-- Slide 7: Nested Conditions -->
+        <div class="slide">
+            <h2>🪆 Nested Conditions</h2>
+            <h3>Conditions Within Conditions</h3>
+            <div class="highlight">
+                <p><strong>⚠️ Caution:</strong> Too much nesting makes code hard to read! Use elif when possible.</p>
+            </div>
+            <div class="grid-2">
+                <div>
+                    <h3>❌ Hard to Read (Nested)</h3>
+                    <div class="code-block">
+<pre><span class="keyword">if</span> score >= <span class="number">90</span>:
+    grade = <span class="string">"A"</span>
+<span class="keyword">else</span>:
+    <span class="keyword">if</span> score >= <span class="number">80</span>:
+        grade = <span class="string">"B"</span>
+    <span class="keyword">else</span>:
+        <span class="keyword">if</span> score >= <span class="number">70</span>:
+            grade = <span class="string">"C"</span>
+        <span class="keyword">else</span>:
+            grade = <span class="string">"F"</span></pre>
+                    </div>
+                </div>
+                <div>
+                    <h3>✅ Easy to Read (elif)</h3>
+                    <div class="code-block">
+<pre><span class="keyword">if</span> score >= <span class="number">90</span>:
+    grade = <span class="string">"A"</span>
+<span class="keyword">elif</span> score >= <span class="number">80</span>:
+    grade = <span class="string">"B"</span>
+<span class="keyword">elif</span> score >= <span class="number">70</span>:
+    grade = <span class="string">"C"</span>
+<span class="keyword">else</span>:
+    grade = <span class="string">"F"</span></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Match Statement -->
+        <div class="slide">
+            <h2>🎯 Match Statement (Python 3.10+)</h2>
+            <h3>Pattern Matching for Cleaner Code</h3>
+            <div class="info-box">
+                <p><strong>🆕 New Feature:</strong> The match statement provides a cleaner way to handle multiple specific values, similar to switch/case in other languages.</p>
+            </div>
+            <div class="code-block">
+<pre><span class="comment"># HTTP status code handler</span>
+<span class="keyword">def</span> <span class="function">http_error</span>(status):
+    <span class="keyword">match</span> status:
+        <span class="keyword">case</span> <span class="number">200</span>:
+            <span class="keyword">return</span> <span class="string">"OK ✅"</span>
+        <span class="keyword">case</span> <span class="number">400</span>:
+            <span class="keyword">return</span> <span class="string">"Bad request ⚠️"</span>
+        <span class="keyword">case</span> <span class="number">404</span>:
+            <span class="keyword">return</span> <span class="string">"Not found 🔍"</span>
+        <span class="keyword">case</span> <span class="number">418</span>:
+            <span class="keyword">return</span> <span class="string">"I'm a teapot ☕"</span>
+        <span class="keyword">case</span> _:  <span class="comment"># wildcard (default)</span>
+            <span class="keyword">return</span> <span class="string">"Something's wrong 🤔"</span>
+
+<span class="function">print</span>(<span class="function">http_error</span>(<span class="number">404</span>))  <span class="comment"># Output: Not found 🔍</span></pre>
+            </div>
+            <div class="success-box">
+                <p><strong>💡 The underscore (_):</strong> Acts as a wildcard that matches everything. It's like the "else" clause.</p>
+            </div>
+        </div>
+
+        <!-- CHAPTER 4: LOOPS -->
+
+        <!-- Slide 9: Introduction to Loops -->
+        <div class="slide">
+            <h2>🔁 Chapter 4: Loops</h2>
+            <h3>Repeating Actions Efficiently</h3>
+            <div class="info-box">
+                <p><strong>🎯 Real-World Analogy:</strong> Think of loops like washing dishes. You repeat the same process (wash, rinse, dry) for each plate until all dishes are clean.</p>
+            </div>
+            <div class="diagram">
+                <div style="font-size: 1.5rem;">
+                    🔄 <strong>Loop</strong>
+                    <div class="flow-arrow">⬇️</div>
+                    <div style="background: rgba(0, 168, 255, 0.2); padding: 1.5rem; border-radius: 10px; margin: 1rem;">
+                        Execute code block<br>
+                        ⬅️ Repeat while condition is True
+                    </div>
+                    <div class="flow-arrow">⬇️</div>
+                    Continue with rest of program
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="concept-card">
+                    <h3>🔁 while Loop</h3>
+                    <p>Repeats while a condition is True</p>
+                    <span class="badge badge-primary">Condition-based</span>
+                </div>
+                <div class="concept-card">
+                    <h3>🔢 for Loop</h3>
+                    <p>Iterates over a sequence</p>
+                    <span class="badge badge-secondary">Count-based</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: while Loop -->
+        <div class="slide">
+            <h2>🔁 The while Loop</h2>
+            <h3>Repeat While Condition is True</h3>
+            <div class="code-block">
+<pre><span class="comment"># Count from 1 to 5</span>
+counter = <span class="number">1</span>
+
+<span class="keyword">while</span> counter <= <span class="number">5</span>:
+    <span class="function">print</span>(<span class="string">f'Count: {counter}'</span>)
+    counter += <span class="number">1</span>  <span class="comment"># Don't forget to update!</span>
+
+<span class="function">print</span>(<span class="string">"Done! 🎉"</span>)
+
+<span class="comment"># Output:
+# Count: 1
+# Count: 2
+# Count: 3
+# Count: 4
+# Count: 5
+# Done! 🎉</span></pre>
+            </div>
+            <div class="highlight">
+                <p><strong>⚠️ Infinite Loop Warning:</strong> Always make sure your condition can become False, or the loop will run forever!</p>
+            </div>
+            <div class="code-block">
+<pre><span class="comment"># ❌ BAD: Infinite loop (counter never changes)</span>
+counter = <span class="number">1</span>
+<span class="keyword">while</span> counter <= <span class="number">5</span>:
+    <span class="function">print</span>(counter)
+    <span class="comment"># Oops! Forgot to update counter</span></pre>
+            </div>
+        </div>
+
+        <!-- Slide 11: Sentinel Loop -->
+        <div class="slide">
+            <h2>🚦 Sentinel Loop Pattern</h2>
+            <h3>Using a Special Value to Stop</h3>
+            <div class="info-box">
+                <p><strong>🎯 Real-World Analogy:</strong> Like a buffet line - you keep taking food until you see the "end of buffet" sign (the sentinel value).</p>
+            </div>
+            <div class="code-block">
+<pre><span class="comment"># Calculate total of user inputs</span>
+<span class="comment"># User enters -1 to stop</span>
+total = <span class="number">0</span>
+number = <span class="function">int</span>(<span class="function">input</span>(<span class="string">'Enter a positive number (-1 to stop): '</span>))
+
+<span class="keyword">while</span> number != -<span class="number">1</span>:  <span class="comment"># -1 is the sentinel value</span>
+    total += number
+    number = <span class="function">int</span>(<span class="function">input</span>(<span class="string">'Enter a positive number (-1 to stop): '</span>))
+
+<span class="function">print</span>(<span class="string">f'The total is {total}'</span>)</pre>
+            </div>
+            <div class="success-box">
+                <p><strong>💡 Sentinel Value:</strong> A special value that signals the end of input. Common choices: -1, 0, empty string, "quit"</p>
+            </div>
+        </div>
+
+        <!-- Slide 12: for Loop -->
+        <div class="slide">
+            <h2>🔢 The for Loop</h2>
+            <h3>Iterating Over Sequences</h3>
+            <div class="code-block">
+<pre><span class="comment"># Iterate over a list</span>
+fruits = [<span class="string">'apple'</span>, <span class="string">'banana'</span>, <span class="string">'cherry'</span>]
+
+<span class="keyword">for</span> fruit <span class="keyword">in</span> fruits:
+    <span class="function">print</span>(<span class="string">f'I love {fruit}s! 🍎'</span>)
+
+<span class="comment"># Output:
+# I love apples! 🍎
+# I love bananas! 🍎
+# I love cherrys! 🍎</span></pre>
+            </div>
+            <div class="diagram">
+                <div style="font-size: 1.2rem;">
+                    <div style="background: rgba(0, 168, 255, 0.2); padding: 1rem; border-radius: 10px;">
+                        for <strong>item</strong> in <strong>sequence</strong>:<br>
+                        <div class="flow-arrow">⬇️</div>
+                        Execute code for each item
+                    </div>
+                </div>
+            </div>
+            <div class="success-box">
+                <p><strong>💡 Key Concept:</strong> The loop variable (fruit) automatically takes each value from the sequence, one at a time.</p>
+            </div>
+        </div>
+
+        <!-- Slide 13: range() Function -->
+        <div class="slide">
+            <h2>📏 The range() Function</h2>
+            <h3>Generating Number Sequences</h3>
+            <div class="grid-3">
+                <div class="concept-card">
+                    <h3>range(n)</h3>
+                    <p>0 to n-1</p>
+                    <div class="code-block">
+<pre><span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">3</span>):
+    <span class="function">print</span>(i)
+<span class="comment"># 0, 1, 2</span></pre>
+                    </div>
+                </div>
+                <div class="concept-card">
+                    <h3>range(m, n)</h3>
+                    <p>m to n-1</p>
+                    <div class="code-block">
+<pre><span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">3</span>, <span class="number">7</span>):
+    <span class="function">print</span>(i)
+<span class="comment"># 3, 4, 5, 6</span></pre>
+                    </div>
+                </div>
+                <div class="concept-card">
+                    <h3>range(m, n, step)</h3>
+                    <p>m to n-1, by step</p>
+                    <div class="code-block">
+<pre><span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">0</span>, <span class="number">10</span>, <span class="number">2</span>):
+    <span class="function">print</span>(i)
+<span class="comment"># 0, 2, 4, 6, 8</span></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="code-block">
+<pre><span class="comment"># Practical example: Print a countdown</span>
+<span class="function">print</span>(<span class="string">"Rocket launch countdown:"</span>)
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">10</span>, <span class="number">0</span>, -<span class="number">1</span>):  <span class="comment"># Negative step for countdown</span>
+    <span class="function">print</span>(<span class="string">f'{i}...'</span>)
+<span class="function">print</span>(<span class="string">"🚀 Liftoff!"</span>)</pre>
+            </div>
+        </div>
+
+        <!-- Slide 14: enumerate() Function -->
+        <div class="slide">
+            <h2>🔢 The enumerate() Function</h2>
+            <h3>Get Index and Value Together</h3>
+            <div class="info-box">
+                <p><strong>🎯 Real-World Analogy:</strong> Like a numbered list where you need both the position number AND the content.</p>
+            </div>
+            <div class="code-block">
+<pre><span class="comment"># Without enumerate - using range(len())</span>
+students = [<span class="string">'Alice'</span>, <span class="string">'Bob'</span>, <span class="string">'Cindy'</span>]
+
+<span class="keyword">for</span> index <span class="keyword">in</span> <span class="function">range</span>(<span class="function">len</span>(students)):
+    <span class="function">print</span>(<span class="string">f'Index {index}: {students[index]}'</span>)
+
+<span class="comment"># ✅ Better: With enumerate</span>
+<span class="keyword">for</span> index, name <span class="keyword">in</span> <span class="function">enumerate</span>(students):
+    <span class="function">print</span>(<span class="string">f'Index {index}: {name}'</span>)
+
+<span class="comment"># Output (both methods):
+# Index 0: Alice
+# Index 1: Bob
+# Index 2: Cindy</span></pre>
+            </div>
+            <div class="success-box">
+                <p><strong>💡 Best Practice:</strong> enumerate() is more Pythonic and efficient than range(len())</p>
+            </div>
+        </div>
+
+        <!-- Slide 15: Loop Control -->
+        <div class="slide">
+            <h2>🎮 Loop Control: break & continue</h2>
+            <h3>Taking Control of Loop Flow</h3>
+            <div class="grid-2">
+                <div class="concept-card">
+                    <h3>🛑 break</h3>
+                    <p>Exit the loop immediately</p>
+                    <div class="code-block">
+<pre><span class="comment"># Find first even number</span>
+numbers = [<span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">11</span>]
+
+<span class="keyword">for</span> num <span class="keyword">in</span> numbers:
+    <span class="keyword">if</span> num % <span class="number">2</span> == <span class="number">0</span>:
+        <span class="function">print</span>(<span class="string">f'Found: {num}'</span>)
+        <span class="keyword">break</span>  <span class="comment"># Exit loop</span>
+    <span class="function">print</span>(<span class="string">f'Checking {num}'</span>)
+
+<span class="comment"># Output:
+# Checking 1
+# Checking 3
+# Checking 5
+# Found: 8</span></pre>
+                    </div>
+                </div>
+                <div class="concept-card">
+                    <h3>⏭️ continue</h3>
+                    <p>Skip to next iteration</p>
+                    <div class="code-block">
+<pre><span class="comment"># Skip odd numbers</span>
+<span class="keyword">for</span> num <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1</span>, <span class="number">6</span>):
+    <span class="keyword">if</span> num % <span class="number">2</span> != <span class="number">0</span>:
+        <span class="keyword">continue</span>  <span class="comment"># Skip odd</span>
+    <span class="function">print</span>(<span class="string">f'Even: {num}'</span>)
+
+<span class="comment"># Output:
+# Even: 2
+# Even: 4</span></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16: Nested Loops -->
+        <div class="slide">
+            <h2>🪆 Nested Loops</h2>
+            <h3>Loops Within Loops</h3>
+            <div class="info-box">
+                <p><strong>🎯 Real-World Analogy:</strong> Like organizing a deck of cards - outer loop for suits (♠️♥️♦️♣️), inner loop for ranks (A, 2, 3...K).</p>
+            </div>
+            <div class="code-block">
+<pre><span class="comment"># Multiplication table</span>
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1</span>, <span class="number">4</span>):  <span class="comment"># Outer loop</span>
+    <span class="keyword">for</span> j <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1</span>, <span class="number">4</span>):  <span class="comment"># Inner loop</span>
+        <span class="function">print</span>(<span class="string">f'{i} × {j} = {i*j}'</span>, end=<span class="string">'  '</span>)
+    <span class="function">print</span>()  <span class="comment"># New line after each row</span>
+
+<span class="comment"># Output:
+# 1 × 1 = 1  1 × 2 = 2  1 × 3 = 3  
+# 2 × 1 = 2  2 × 2 = 4  2 × 3 = 6  
+# 3 × 1 = 3  3 × 2 = 6  3 × 3 = 9</span></pre>
+            </div>
+            <div class="highlight">
+                <p><strong>⚠️ Performance Note:</strong> Nested loops can be slow! If outer loop runs n times and inner loop runs m times, total iterations = n × m</p>
+            </div>
+        </div>
+
+        <!-- CHAPTER 5: FUNCTIONS -->
+
+        <!-- Slide 17: Introduction to Functions -->
+        <div class="slide">
+            <h2>⚙️ Chapter 5: Functions</h2>
+            <h3>Reusable Blocks of Code</h3>
+            <div class="info-box">
+                <p><strong>🎯 Real-World Analogy:</strong> Functions are like recipes. You write the recipe once (define the function), then you can cook the dish many times (call the function) without rewriting the instructions.</p>
+            </div>
+            <div class="grid-2">
+                <div class="concept-card">
+                    <h3>✅ Why Use Functions?</h3>
+                    <ul>
+                        <li>📦 <strong>Reusability:</strong> Write once, use many times</li>
+                        <li>🧩 <strong>Organization:</strong> Break complex problems into smaller pieces</li>
+                        <li>🔧 <strong>Maintainability:</strong> Fix bugs in one place</li>
+                        <li>🤝 <strong>Collaboration:</strong> Share code easily</li>
+                    </ul>
+                </div>
+                <div class="concept-card">
+                    <h3>🏗️ Function Structure</h3>
+                    <div class="code-block">
+<pre><span class="keyword">def</span> <span class="function">function_name</span>(parameters):
+    <span class="string">"""Docstring"""</span>
+    <span class="comment"># Function body</span>
+    <span class="keyword">return</span> result</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="success-box">
+                <p><strong>💡 DRY Principle:</strong> Don't Repeat Yourself - Functions help you avoid code duplication!</p>
+            </div>
+        </div>
+
+        <!-- Slide 18: Defining Functions -->
+        <div class="slide">
+            <h2>📝 Defining Functions</h2>
+            <h3>Your First Function</h3>
+            <div class="code-block">
+<pre><span class="comment"># Simple function with no parameters</span>
+<span class="keyword">def</span> <span class="function">greet</span>():
+    <span class="string">"""This function prints a greeting"""</span>
+    <span class="function">print</span>(<span class="string">"Hello, World! 👋"</span>)
+
+<span class="comment"># Call the function</span>
+<span class="function">greet</span>()  <span class="comment"># Output: Hello, World! 👋</span></pre>
+            </div>
+            <div class="code-block">
+<pre><span class="comment"># Function with parameters</span>
+<span class="keyword">def</span> <span class="function">greet_person</span>(name):
+    <span class="string">"""Greet a specific person"""</span>
+    <span class="function">print</span>(<span class="string">f"Hello, {name}! 👋"</span>)
+
+<span class="comment"># Call with argument</span>
+<span class="function">greet_person</span>(<span class="string">"Alice"</span>)  <span class="comment"># Output: Hello, Alice! 👋</span>
+<span class="function">greet_person</span>(<span class="string">"Bob"</span>)    <span class="comment"># Output: Hello, Bob! 👋</span></pre>
+            </div>
+            <div class="info-box">
+                <p><strong>📖 Terminology:</strong><br>
+                • <strong>Parameters:</strong> Variables in function definition (name)<br>
+                • <strong>Arguments:</strong> Actual values passed when calling ("Alice", "Bob")</p>
+            </div>
+        </div>
+
+        <!-- Slide 19: Return Values -->
+        <div class="slide">
+            <h2>↩️ Return Values</h2>
+            <h3>Getting Results from Functions</h3>
+            <div class="code-block">
+<pre><span class="comment"># Function that returns a value</span>
+<span class="keyword">def</span> <span class="function">add_numbers</span>(a, b):
+    <span class="string">"""Add two numbers and return the result"""</span>
+    result = a + b
+    <span class="keyword">return</span> result
+
+<span class="comment"># Use the returned value</span>
+sum_value = <span class="function">add_numbers</span>(<span class="number">5</span>, <span class="number">3</span>)
+<span class="function">print</span>(<span class="string">f'The sum is: {sum_value}'</span>)  <span class="comment"># Output: The sum is: 8</span></pre>
+            </div>
+            <div class="code-block">
+<pre><span class="comment"># Return multiple values (as a tuple)</span>
+<span class="keyword">def</span> <span class="function">calculate</span>(a, b):
+    <span class="string">"""Return sum, difference, and product"""</span>
+    <span class="keyword">return</span> a + b, a - b, a * b
+
+<span class="comment"># Unpack the returned values</span>
+sum_val, diff_val, prod_val = <span class="function">calculate</span>(<span class="number">10</span>, <span class="number">3</span>)
+<span class="function">print</span>(<span class="string">f'Sum: {sum_val}, Diff: {diff_val}, Product: {prod_val}'</span>)
+<span class="comment"># Output: Sum: 13, Diff: 7, Product: 30</span></pre>
+            </div>
+            <div class="success-box">
+                <p><strong>💡 Important:</strong> Functions without a return statement automatically return None</p>
+            </div>
+        </div>
+
+        <!-- Slide 20: Function Parameters -->
+        <div class="slide">
+            <h2>📋 Function Parameters</h2>
+            <h3>Different Types of Parameters</h3>
+            <div class="grid-2">
+                <div class="concept-card">
+                    <h3>Required Parameters</h3>
+                    <div class="code-block">
+<pre><span class="keyword">def</span> <span class="function">greet</span>(name, age):
+    <span class="function">print</span>(<span class="string">f'{name} is {age} years old'</span>)
+
+<span class="function">greet</span>(<span class="string">"Alice"</span>, <span class="number">25</span>)  <span class="comment"># ✅ Works</span>
+<span class="comment"># greet("Alice")  # ❌ Error!</span></pre>
+                    </div>
+                </div>
+                <div class="concept-card">
+                    <h3>Default Parameters</h3>
+                    <div class="code-block">
+<pre><span class="keyword">def</span> <span class="function">greet</span>(name, greeting=<span class="string">"Hello"</span>):
+    <span class="function">print</span>(<span class="string">f'{greeting}, {name}!'</span>)
+
+<span class="function">greet</span>(<span class="string">"Alice"</span>)  <span class="comment"># Hello, Alice!</span>
+<span class="function">greet</span>(<span class="string">"Bob"</span>, <span class="string">"Hi"</span>)  <span class="comment"># Hi, Bob!</span></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="code-block">
+<pre><span class="comment"># Keyword arguments - specify parameter names</span>
+<span class="keyword">def</span> <span class="function">create_profile</span>(name, age, city):
+    <span class="function">print</span>(<span class="string">f'{name}, {age} years old, lives in {city}'</span>)
+
+<span class="comment"># Positional arguments</span>
+<span class="function">create_profile</span>(<span class="string">"Alice"</span>, <span class="number">25</span>, <span class="string">"NYC"</span>)
+
+<span class="comment"># Keyword arguments (order doesn't matter)</span>
+<span class="function">create_profile</span>(age=<span class="number">30</span>, city=<span class="string">"LA"</span>, name=<span class="string">"Bob"</span>)
+
+<span class="comment"># Mix of both (positional must come first)</span>
+<span class="function">create_profile</span>(<span class="string">"Charlie"</span>, age=<span class="number">35</span>, city=<span class="string">"Chicago"</span>)</pre>
+            </div>
+        </div>
+
+        <!-- Slide 21: Variable Scope -->
+        <div class="slide">
+            <h2>🔍 Variable Scope</h2>
+            <h3>Where Variables Live</h3>
+            <div class="diagram">
+                <div style="text-align: left; max-width: 600px; margin: 0 auto;">
+                    <div style="background: rgba(0, 168, 255, 0.2); padding: 1rem; border-radius: 10px; margin-bottom: 1rem;">
+                        <strong>🌍 Global Scope:</strong> Variables defined outside functions
+                    </div>
+                    <div style="background: rgba(81, 207, 102, 0.2); padding: 1rem; border-radius: 10px; margin-bottom: 1rem;">
+                        <strong>🏠 Local Scope:</strong> Variables defined inside functions
+                    </div>
+                    <div style="background: rgba(255, 215, 0, 0.2); padding: 1rem; border-radius: 10px;">
+                        <strong>🔧 Built-in Scope:</strong> Python's built-in names (print, len, etc.)
+                    </div>
+                </div>
+            </div>
+            <div class="code-block">
+<pre><span class="comment"># Global variable</span>
+global_var = <span class="string">"I'm global! 🌍"</span>
+
+<span class="keyword">def</span> <span class="function">my_function</span>():
+    <span class="comment"># Local variable</span>
+    local_var = <span class="string">"I'm local! 🏠"</span>
+    <span class="function">print</span>(global_var)  <span class="comment"># ✅ Can access global</span>
+    <span class="function">print</span>(local_var)   <span class="comment"># ✅ Can access local</span>
+
+<span class="function">my_function</span>()
+<span class="function">print</span>(global_var)  <span class="comment"># ✅ Works</span>
+<span class="comment"># print(local_var)  # ❌ Error! local_var doesn't exist here</span></pre>
+            </div>
+            <div class="highlight">
+                <p><strong>⚠️ Best Practice:</strong> Avoid global variables when possible. Use parameters and return values instead!</p>
+            </div>
+        </div>
+
+        <!-- Slide 22: Main Function Pattern -->
+        <div class="slide">
+            <h2>🏁 The main() Function Pattern</h2>
+            <h3>Professional Code Organization</h3>
+            <div class="info-box">
+                <p><strong>🎯 Best Practice:</strong> Use main() as the entry point of your program for better organization.</p>
+            </div>
+            <div class="code-block">
+<pre><span class="keyword">def</span> <span class="function">greet</span>(name):
+    <span class="string">"""Greet a person"""</span>
+    <span class="function">print</span>(<span class="string">f"Hello, {name}!"</span>)
+
+<span class="keyword">def</span> <span class="function">calculate_area</span>(radius):
+    <span class="string">"""Calculate circle area"""</span>
+    <span class="keyword">return</span> <span class="number">3.14159</span> * radius ** <span class="number">2</span>
+
+<span class="keyword">def</span> <span class="function">main</span>():
+    <span class="string">"""Main program logic"""</span>
+    <span class="function">greet</span>(<span class="string">"Alice"</span>)
+    area = <span class="function">calculate_area</span>(<span class="number">5</span>)
+    <span class="function">print</span>(<span class="string">f"Circle area: {area}"</span>)
+
+<span class="comment"># Entry point</span>
+<span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:
+    <span class="function">main</span>()</pre>
+            </div>
+            <div class="success-box">
+                <p><strong>💡 Why this pattern?</strong> It makes your code reusable as a module and keeps the entry point clear.</p>
+            </div>
+        </div>
+
+        <!-- CHAPTER 6: COLLECTIONS -->
+
+        <!-- Slide 23: Introduction to Collections -->
+        <div class="slide">
+            <h2>📦 Chapter 6: Collections</h2>
+            <h3>Storing Multiple Values</h3>
+            <div class="info-box">
+                <p><strong>🎯 Real-World Analogy:</strong> Collections are like different types of containers:<br>
+                • Lists = Shopping cart (order matters, can change)<br>
+                • Tuples = Museum display (order matters, can't change)<br>
+                • Dictionaries = Phone book (key → value pairs)<br>
+                • Sets = Unique badge collection (no duplicates)</p>
+            </div>
+            <table>
+                <tr>
+                    <th>Type</th>
+                    <th>Ordered</th>
+                    <th>Mutable</th>
+                    <th>Duplicates</th>
+                    <th>Syntax</th>
+                </tr>
+                <tr>
+                    <td>List</td>
+                    <td>✅</td>
+                    <td>✅</td>
+                    <td>✅</td>
+                    <td>[1, 2, 3]</td>
+                </tr>
+                <tr>
+                    <td>Tuple</td>
+                    <td>✅</td>
+                    <td>❌</td>
+                    <td>✅</td>
+                    <td>(1, 2, 3)</td>
+                </tr>
+                <tr>
+                    <td>Dictionary</td>
+                    <td>✅ (3.7+)</td>
+                    <td>✅</td>
+                    <td>Keys: ❌<br>Values: ✅</td>
+                    <td>{"a": 1}</td>
+                </tr>
+                <tr>
+                    <td>Set</td>
+                    <td>❌</td>
+                    <td>✅</td>
+                    <td>❌</td>
+                    <td>{1, 2, 3}</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 24: Lists -->
+        <div class="slide">
+            <h2>📋 Lists: Mutable Ordered Collections</h2>
+            <h3>Your Swiss Army Knife of Data Structures</h3>
+            <div class="code-block">
+<pre><span class="comment"># Creating lists</span>
+fruits = [<span class="string">'apple'</span>, <span class="string">'banana'</span>, <span class="string">'cherry'</span>]
+numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]
+mixed = [<span class="number">1</span>, <span class="string">'hello'</span>, <span class="number">3.14</span>, <span class="keyword">True</span>]  <span class="comment"># Can mix types!</span>
+
+<span class="comment"># Accessing elements (zero-indexed)</span>
+<span class="function">print</span>(fruits[<span class="number">0</span>])   <span class="comment"># apple</span>
+<span class="function">print</span>(fruits[-<span class="number">1</span>])  <span class="comment"># cherry (last element)</span>
+
+<span class="comment"># Modifying lists</span>
+fruits[<span class="number">1</span>] = <span class="string">'blueberry'</span>  <span class="comment"># Change element</span>
+fruits.<span class="function">append</span>(<span class="string">'date'</span>)      <span class="comment"># Add to end</span>
+fruits.<span class="function">insert</span>(<span class="number">1</span>, <span class="string">'avocado'</span>)  <span class="comment"># Insert at position</span>
+fruits.<span class="function">remove</span>(<span class="string">'apple'</span>)     <span class="comment"># Remove by value</span>
+popped = fruits.<span class="function">pop</span>()       <span class="comment"># Remove and return last element</span>
+
+<span class="function">print</span>(fruits)</pre>
+            </div>
+            <div class="grid-2">
+                <div class="concept-card">
+                    <h3>Common Methods</h3>
+                    <span class="badge badge-primary">append()</span>
+                    <span class="badge badge-secondary">insert()</span>
+                    <span class="badge badge-success">remove()</span>
+                    <span class="badge badge-warning">pop()</span>
+                    <span class="badge badge-accent">sort()</span>
+                </div>
+                <div class="concept-card">
+                    <h3>List Slicing</h3>
+                    <div class="code-block">
+<pre>nums = [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]
+nums[<span class="number">1</span>:<span class="number">4</span>]   <span class="comment"># [1, 2, 3]</span>
+nums[:<span class="number">3</span>]    <span class="comment"># [0, 1, 2]</span>
+nums[<span class="number">2</span>:]    <span class="comment"># [2, 3, 4]</span></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 25: List Comprehensions -->
+        <div class="slide">
+            <h2>✨ List Comprehensions</h2>
+            <h3>Elegant One-Line List Creation</h3>
+            <div class="info-box">
+                <p><strong>🎯 Real-World Analogy:</strong> Like a factory assembly line - transform input items into output items in one smooth operation.</p>
+            </div>
+            <div class="code-block">
+<pre><span class="comment"># Traditional way: Create a list of squares</span>
+squares = []
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">5</span>):
+    squares.<span class="function">append</span>(i ** <span class="number">2</span>)
+<span class="function">print</span>(squares)  <span class="comment"># [0, 1, 4, 9, 16]</span>
+
+<span class="comment"># ✅ Better: List comprehension</span>
+squares = [i ** <span class="number">2</span> <span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">5</span>)]
+<span class="function">print</span>(squares)  <span class="comment"># [0, 1, 4, 9, 16]</span></pre>
+            </div>
+            <div class="code-block">
+<pre><span class="comment"># With condition: Only even squares</span>
+even_squares = [i ** <span class="number">2</span> <span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">10</span>) <span class="keyword">if</span> i % <span class="number">2</span> == <span class="number">0</span>]
+<span class="function">print</span>(even_squares)  <span class="comment"># [0, 4, 16, 36, 64]</span>
+
+<span class="comment"># Transform strings to uppercase</span>
+names = [<span class="string">'alice'</span>, <span class="string">'bob'</span>, <span class="string">'charlie'</span>]
+upper_names = [name.<span class="function">upper</span>() <span class="keyword">for</span> name <span class="keyword">in</span> names]
+<span class="function">print</span>(upper_names)  <span class="comment"># ['ALICE', 'BOB', 'CHARLIE']</span></pre>
+            </div>
+        </div>
+
+        <!-- Slide 26: Tuples -->
+        <div class="slide">
+            <h2>🔒 Tuples: Immutable Ordered Collections</h2>
+            <h3>Like Lists, But Can't Be Changed</h3>
+            <div class="code-block">
+<pre><span class="comment"># Creating tuples</span>
+coordinates = (<span class="number">10</span>, <span class="number">20</span>)
+person = (<span class="string">'Alice'</span>, <span class="number">25</span>, <span class="string">'Engineer'</span>)
+empty = ()
+single = (<span class="number">42</span>,)  <span class="comment"># Note the comma!</span>
+
+<span class="comment"># Accessing elements</span>
+<span class="function">print</span>(coordinates[<span class="number">0</span>])  <span class="comment"># 10</span>
+<span class="function">print</span>(person[<span class="number">1</span>])      <span class="comment"># 25</span>
+
+<span class="comment"># Unpacking tuples</span>
+x, y = coordinates
+name, age, job = person
+<span class="function">print</span>(<span class="string">f'{name} is {age} years old'</span>)
+
+<span class="comment"># ❌ Cannot modify tuples!</span>
+<span class="comment"># coordinates[0] = 15  # TypeError!</span></pre>
+            </div>
+            <div class="grid-2">
+                <div class="success-box">
+                    <h3>✅ When to Use Tuples</h3>
+                    <ul>
+                        <li>Protect data from changes</li>
+                        <li>Return multiple values from functions</li>
+                        <li>Use as dictionary keys</li>
+                        <li>Represent fixed data (coordinates, RGB colors)</li>
+                    </ul>
+                </div>
+                <div class="info-box">
+                    <h3>💡 Tuple Trick</h3>
+                    <div class="code-block">
+<pre><span class="comment"># Swap variables elegantly</span>
+a, b = <span class="number">5</span>, <span class="number">10</span>
+a, b = b, a  <span class="comment"># Swap!</span>
+<span class="function">print</span>(a, b)  <span class="comment"># 10 5</span></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 27: Dictionaries -->
+        <div class="slide">
+            <h2>📖 Dictionaries: Key-Value Pairs</h2>
+            <h3>Like a Real Dictionary or Phone Book</h3>
+            <div class="code-block">
+<pre><span class="comment"># Creating dictionaries</span>
+student = {
+    <span class="string">"name"</span>: <span class="string">"Alice"</span>,
+    <span class="string">"age"</span>: <span class="number">20</span>,
+    <span class="string">"major"</span>: <span class="string">"Computer Science"</span>,
+    <span class="string">"gpa"</span>: <span class="number">3.8</span>
+}
+
+<span class="comment"># Accessing values</span>
+<span class="function">print</span>(student[<span class="string">"name"</span>])    <span class="comment"># Alice</span>
+<span class="function">print</span>(student.<span class="function">get</span>(<span class="string">"age"</span>))  <span class="comment"># 20</span>
+
+<span class="comment"># Modifying dictionary</span>
+student[<span class="string">"age"</span>] = <span class="number">21</span>          <span class="comment"># Update existing key</span>
+student[<span class="string">"city"</span>] = <span class="string">"Boston"</span>  <span class="comment"># Add new key-value pair</span>
+<span class="keyword">del</span> student[<span class="string">"gpa"</span>]         <span class="comment"># Remove key-value pair</span>
+
+<span class="function">print</span>(student)</pre>
+            </div>
+            <div class="code-block">
+<pre><span class="comment"># Iterating over dictionaries</span>
+<span class="keyword">for</span> key <span class="keyword">in</span> student.<span class="function">keys</span>():
+    <span class="function">print</span>(<span class="string">f'Key: {key}'</span>)
+
+<span class="keyword">for</span> value <span class="keyword">in</span> student.<span class="function">values</span>():
+    <span class="function">print</span>(<span class="string">f'Value: {value}'</span>)
+
+<span class="keyword">for</span> key, value <span class="keyword">in</span> student.<span class="function">items</span>():
+    <span class="function">print</span>(<span class="string">f'{key}: {value}'</span>)</pre>
+            </div>
+        </div>
+
+        <!-- Slide 28: Dictionary Use Cases -->
+        <div class="slide">
+            <h2>🎯 Dictionary Practical Examples</h2>
+            <h3>Real-World Applications</h3>
+            <div class="code-block">
+<pre><span class="comment"># Example 1: Word frequency counter</span>
+text = <span class="string">"hello world hello python world"</span>
+word_count = {}
+
+<span class="keyword">for</span> word <span class="keyword">in</span> text.<span class="function">split</span>():
+    <span class="keyword">if</span> word <span class="keyword">in</span> word_count:
+        word_count[word] += <span class="number">1</span>
+    <span class="keyword">else</span>:
+        word_count[word] = <span class="number">1</span>
+
+<span class="function">print</span>(word_count)  <span class="comment"># {'hello': 2, 'world': 2, 'python': 1}</span></pre>
+            </div>
+            <div class="code-block">
+<pre><span class="comment"># Example 2: Student database</span>
+students = {
+    <span class="string">"S001"</span>: {<span class="string">"name"</span>: <span class="string">"Alice"</span>, <span class="string">"grade"</span>: <span class="string">"A"</span>},
+    <span class="string">"S002"</span>: {<span class="string">"name"</span>: <span class="string">"Bob"</span>, <span class="string">"grade"</span>: <span class="string">"B"</span>},
+    <span class="string">"S003"</span>: {<span class="string">"name"</span>: <span class="string">"Charlie"</span>, <span class="string">"grade"</span>: <span class="string">"A"</span>}
+}
+
+<span class="comment"># Find all A students</span>
+a_students = [info[<span class="string">"name"</span>] <span class="keyword">for</span> info <span class="keyword">in</span> students.<span class="function">values</span>() <span class="keyword">if</span> info[<span class="string">"grade"</span>] == <span class="string">"A"</span>]
+<span class="function">print</span>(a_students)  <span class="comment"># ['Alice', 'Charlie']</span></pre>
+            </div>
+        </div>
+
+        <!-- Slide 29: Sets -->
+        <div class="slide">
+            <h2>🔷 Sets: Unique Unordered Collections</h2>
+            <h3>Mathematical Sets in Python</h3>
+            <div class="code-block">
+<pre><span class="comment"># Creating sets</span>
+fruits = {<span class="string">'apple'</span>, <span class="string">'banana'</span>, <span class="string">'cherry'</span>}
+numbers = <span class="function">set</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>])  <span class="comment"># Duplicates removed!</span>
+<span class="function">print</span>(numbers)  <span class="comment"># {1, 2, 3}</span>
+
+<span class="comment"># Adding and removing elements</span>
+fruits.<span class="function">add</span>(<span class="string">'date'</span>)
+fruits.<span class="function">remove</span>(<span class="string">'apple'</span>)  <span class="comment"># Error if not found</span>
+fruits.<span class="function">discard</span>(<span class="string">'kiwi'</span>)  <span class="comment"># No error if not found</span>
+
+<span class="comment"># Membership testing (very fast!)</span>
+<span class="function">print</span>(<span class="string">'banana'</span> <span class="keyword">in</span> fruits)  <span class="comment"># True</span></pre>
+            </div>
+            <div class="grid-2">
+                <div class="code-block">
+<pre><span class="comment"># Set operations</span>
+a = {<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>}
+b = {<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>}
+
+<span class="comment"># Union (all elements)</span>
+<span class="function">print</span>(a | b)  <span class="comment"># {1,2,3,4,5,6}</span>
+
+<span class="comment"># Intersection (common)</span>
+<span class="function">print</span>(a & b)  <span class="comment"># {3, 4}</span>
+
+<span class="comment"># Difference</span>
+<span class="function">print</span>(a - b)  <span class="comment"># {1, 2}</span></pre>
+                </div>
+                <div class="success-box">
+                    <h3>✅ When to Use Sets</h3>
+                    <ul>
+                        <li>Remove duplicates</li>
+                        <li>Fast membership testing</li>
+                        <li>Mathematical operations</li>
+                        <li>Find unique items</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 30: Collection Comparison -->
+        <div class="slide">
+            <h2>🔄 Choosing the Right Collection</h2>
+            <h3>Quick Decision Guide</h3>
+            <div class="grid-2">
+                <div class="concept-card">
+                    <h3>📋 Use Lists When:</h3>
+                    <ul>
+                        <li>Order matters</li>
+                        <li>Need to modify data</li>
+                        <li>Duplicates are okay</li>
+                        <li>Need indexing/slicing</li>
+                    </ul>
+                    <span class="badge badge-primary">Most versatile!</span>
+                </div>
+                <div class="concept-card">
+                    <h3>🔒 Use Tuples When:</h3>
+                    <ul>
+                        <li>Data shouldn't change</li>
+                        <li>Need dictionary keys</li>
+                        <li>Return multiple values</li>
+                        <li>Represent fixed data</li>
+                    </ul>
+                    <span class="badge badge-secondary">Immutable safety!</span>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="concept-card">
+                    <h3>📖 Use Dictionaries When:</h3>
+                    <ul>
+                        <li>Need key-value pairs</li>
+                        <li>Fast lookups by key</li>
+                        <li>Representing real objects</li>
+                        <li>Counting/grouping data</li>
+                    </ul>
+                    <span class="badge badge-success">Key-value power!</span>
+                </div>
+                <div class="concept-card">
+                    <h3>🔷 Use Sets When:</h3>
+                    <ul>
+                        <li>Need unique values only</li>
+                        <li>Fast membership testing</li>
+                        <li>Set math operations</li>
+                        <li>Order doesn't matter</li>
+                    </ul>
+                    <span class="badge badge-warning">Uniqueness guaranteed!</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 31: Final Summary -->
+        <div class="slide">
+            <h2>🎓 Course Summary</h2>
+            <h3>Key Takeaways</h3>
+            <div class="grid-2">
+                <div class="concept-card">
+                    <h3>🔀 Branches</h3>
+                    <ul>
+                        <li>Use if-elif-else for decisions</li>
+                        <li>Boolean logic is fundamental</li>
+                        <li>Match statements for pattern matching</li>
+                        <li>Avoid deep nesting</li>
+                    </ul>
+                </div>
+                <div class="concept-card">
+                    <h3>🔁 Loops</h3>
+                    <ul>
+                        <li>while for condition-based repetition</li>
+                        <li>for for iterating sequences</li>
+                        <li>range() for number sequences</li>
+                        <li>break/continue for control</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="concept-card">
+                    <h3>⚙️ Functions</h3>
+                    <ul>
+                        <li>DRY principle - Don't Repeat Yourself</li>
+                        <li>Parameters vs Arguments</li>
+                        <li>Return values for results</li>
+                        <li>Use main() for organization</li>
+                    </ul>
+                </div>
+                <div class="concept-card">
+                    <h3>📦 Collections</h3>
+                    <ul>
+                        <li>Lists: mutable, ordered</li>
+                        <li>Tuples: immutable, ordered</li>
+                        <li>Dictionaries: key-value pairs</li>
+                        <li>Sets: unique, unordered</li>
+                    </ul>
+                </div>
+            </div>
+            <div style="margin-top: 3rem; text-align: center;">
+                <h2 style="color: var(--primary);">🚀 You're Ready to Code!</h2>
+                <p style="font-size: 1.2rem; margin-top: 1rem;">Practice makes perfect. Happy coding! 💻</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Navigation Controls -->
+    <div class="nav-controls">
+        <button class="nav-btn" onclick="previousSlide()">◀ Previous</button>
+        <div class="slide-indicator" id="indicators"></div>
+        <button class="nav-btn" onclick="nextSlide()">Next ▶</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        // Create slide indicators
+        const indicatorsContainer = document.getElementById('indicators');
+        for (let i = 0; i < totalSlides; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'dot';
+            if (i === 0) dot.classList.add('active');
+            dot.onclick = () => goToSlide(i);
+            indicatorsContainer.appendChild(dot);
+        }
+
+        function showSlide(n) {
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Wrap around
+            if (n >= totalSlides) currentSlide = 0;
+            else if (n < 0) currentSlide = totalSlides - 1;
+            else currentSlide = n;
+
+            // Hide all slides
+            slides.forEach(slide => slide.classList.remove('active'));
+            
+            // Show current slide
+            slides[currentSlide].classList.add('active');
+
+            // Update indicators
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide);
+            });
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function previousSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        function goToSlide(n) {
+            showSlide(n);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                previousSlide();
+            }
+        });
+
+        // Touch swipe support
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) nextSlide();
+            if (touchEndX > touchStartX + 50) previousSlide();
+        }
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>
